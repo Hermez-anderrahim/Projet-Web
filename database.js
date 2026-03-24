@@ -112,15 +112,16 @@ db.serialize(() => {
 });
 
 // Fermeture de la base de données une fois les requêtes terminées
-db.close((err) => {
-    if (err) {
-        console.error("Erreur", err.message);
-    } else {
-        console.log("Base de données fermée");
-    }
-});
+// db.close((err) => {
+//     if (err) {
+//         console.error("Erreur", err.message);
+//     } else {
+//         console.log("Base de données fermée");
+//     }
+// });
 //on exporte les fonctions utilitaires 
 module.exports = {
+    db,
     db_fetch,
     db_insert,
     db_update
