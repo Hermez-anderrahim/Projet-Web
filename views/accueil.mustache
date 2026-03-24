@@ -1,0 +1,26 @@
+{{> partials/en_tete}}
+<main>
+    <h1>Besoin d'un coup de main ?</h1>
+    <p>Consultez les demandes de vos camarades ou posez votre propre question.</p>
+    
+    <div class="flux-demandes">
+        {{#demandes}}
+        <div class="carte">
+            <div class="badge">{{statut}}</div>
+            <h3>{{matiere}}</h3>
+            <p>{{description}}</p>
+            <div class="auteur">Posté par : <strong>{{nom_utilisateur}}</strong></div>
+            <a href="/demande/{{id}}" class="btn-secondary">Voir la discussion</a>
+        </div>
+        {{/demandes}}
+        
+        {{^demandes}}
+        <p class="vide">Aucune demande d'aide ouverte pour le moment.</p>
+        {{/demandes}}
+    </div>
+
+    <div class="actions">
+        <a href="/nouvelle-demande" class="btn-principal">Poser une question</a>
+    </div>
+</main>
+{{> partials/pied_de_page}}
