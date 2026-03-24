@@ -11,6 +11,40 @@ const db = new sqlite3.Database(dbFile, (err) => {
     }
 });
 
+function db_fetch(query, args = [], fetchAll = false) {
+    return new Promise((resolve, reject) => {
+        if (fetchAll) {
+            db.all(query, args, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        } else {
+            db.get(query, args, (err, row) => {
+                if (err) reject(err);
+                else resolve(row || null);
+            });
+        }
+    });
+}
+
+function db_insert(query, args = []) {
+    return new Promise((resolve, reject) => {
+        db.run(query, args, function(err) {
+            if (err) reject(err);
+            else resolve(this.lastID); 
+        });
+    });
+}
+
+function db_update(query, args = []) {
+    return new Promise((resolve, reject) => {
+        db.run(query, args, function(err) {
+            if (err) reject(err);
+            else resolve(this.changes); 
+        });
+    });
+}
+
 db.serialize(() => {
 
 
@@ -81,3 +115,9 @@ db.close((err) => {
         console.log("Base de données fermée");
     }
 });
+//on exporte les fonctions utilitaires 
+module.exports = {
+    db_fetch,
+    db_insert,
+    db_update
+};

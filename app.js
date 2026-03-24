@@ -2,6 +2,7 @@ const express = require('express');
 const mustacheExpress = require('mustache-express');
 const DB = require('./database'); // Import de nos helpers
 const app = express();
+const { inscrire_utilisateur, authentifier_utilisateur } = require('./models');
 
 app.engine('mustache', mustacheExpress());
 app.set('view engine', 'mustache');
