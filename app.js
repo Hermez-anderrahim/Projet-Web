@@ -1,58 +1,79 @@
 const express = require('express');
 const mustacheExpress = require('mustache-express');
-const DB = require('./database'); // Import de nos helpers
+const session = require('express-session');
+const { db_fetch, db_insert } = require('./database');
+
+
 const app = express();
-const { inscrire_utilisateur, authentifier_utilisateur } = require('./models');
+
 
 app.engine('mustache', mustacheExpress());
 app.set('view engine', 'mustache');
 app.set('views', __dirname + '/views');
+
+
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'luminy_secret_key',
+    resave: false,
+    saveUninitialized: true
+}));
 
-// Simulation de session (en attendant l'auth de votre collaborateur)
 app.use((req, res, next) => {
-    // On simule un utilisateur existant dans votre table (ex: ID 1)
-    res.locals.user = { id: 1, nom_utilisateur: "Abderrahim", est_parrain: 0 };
+    res.locals.user = req.session.user || null;
     next();
 });
 
-// --- ROUTES ---
-
 app.get('/', async (req, res) => {
-    try {
-        const demandes = await DB.obtenirDemandes();
-        res.render('accueil', { demandes });
-    } catch (err) {
-        res.status(500).send("Erreur base de données : " + err.message);
-    }
+
+    
+    const query = `
+        SELECT d.*, u.nom_utilisateur 
+        FROM demande_aide d 
+        JOIN utilisateur u ON d.auteur_id = u.id 
+        WHERE d.statut = 'ouverte' ORDER BY d.id DESC`;
+    
+    const demandes = await db_fetch(query, [], true);
+    res.render('accueil', { demandes });
 });
 
 app.get('/demande/:id', async (req, res) => {
-    try {
-        const demande = await DB.obtenirDemandeParId(req.params.id);
-        const reponses = await DB.obtenirReponses(req.params.id);
-        res.render('detail_demande', { demande, reponses });
-    } catch (err) {
-        res.status(404).send("Demande introuvable");
-    }
+    const demande = await db_fetch("SELECT d.*, u.nom_utilisateur FROM demande_aide d JOIN utilisateur u ON d.auteur_id = u.id WHERE d.id = ?", [req.params.id]);
+    const reponses = await db_fetch("SELECT r.*, u.nom_utilisateur FROM reponse r JOIN utilisateur u ON r.auteur_id = u.id WHERE r.demande_id = ?", [req.params.id], true);
+    res.render('detail_demande', { demande, reponses });
 });
 
 app.post('/nouvelle-demande', async (req, res) => {
     const { matiere, description } = req.body;
-    await DB.ajouterDemande(res.locals.user.id, matiere, description);
+    await db_insert(
+        "INSERT INTO demande_aide (auteur_id, matiere, description) VALUES (?, ?, ?)",
+        [req.session.user.id, matiere, description]
+    );
     res.redirect('/');
 });
 
-app.post('/demande/:id/repondre', async (req, res) => {
-    const { message } = req.body;
-    await DB.ajouterReponse(req.params.id, res.locals.user.id, message);
-    res.redirect(`/demande/${req.params.id}`);
-});
+
 
 app.get('/ressources', async (req, res) => {
-    const ressources = await DB.obtenirRessources();
+    const ressources = await db_fetch(`
+        SELECT r.*, u.nom_utilisateur 
+        FROM ressource r 
+        JOIN utilisateur u ON r.auteur_id = u.id 
+        ORDER BY matiere ASC`, [], true);
     res.render('ressources', { ressources });
 });
+app.get('/nouvelle-demande', (req, res) => {
+    res.render('creer_demande');
+});
 
-app.listen(3000, () => console.log('Luminy-Connect prêt sur http://localhost:3000'));
+app.post('/ajouter-ressource', async (req, res) => {
+    const { matiere, titre, lien } = req.body;
+    await db_insert(
+        "INSERT INTO ressource (auteur_id, matiere, titre, lien_url) VALUES (?, ?, ?, ?)",
+        [req.session.user.id, matiere, titre, lien]
+    );
+    res.redirect('/ressources');
+});
+
+app.listen(3000, () => console.log('Serveur : http://localhost:3000'));
