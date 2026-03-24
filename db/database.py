@@ -97,6 +97,7 @@ class LuminyConnectDB:
 
         if db_path is not None:
             self.load(db_path)
-
+if __name__ == '__main__':
+    db = LuminyConnectDB()
    
     
