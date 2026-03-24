@@ -1,6 +1,6 @@
 const express = require('express');
 const mustacheExpress = require('mustache-express');
-const DB = require('./database'); // Import de nos helpers
+const DB = require('./database'); 
 const app = express();
 const { inscrire_utilisateur, authentifier_utilisateur } = require('./models');
 
@@ -10,7 +10,6 @@ app.set('views', __dirname + '/views');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
-// Simulation de session (en attendant l'auth de votre collaborateur)
 app.use((req, res, next) => {
     // On simule un utilisateur existant dans votre table (ex: ID 1)
     res.locals.user = { id: 1, nom_utilisateur: "Abderrahim", est_parrain: 0 };

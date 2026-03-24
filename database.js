@@ -1,27 +1,25 @@
 const sqlite3 = require('sqlite3').verbose();
-
-const dbFile = './luminy_connect.sqlite';
-
-// Connexion à la base de données 
-const db = new sqlite3.Database(dbFile, (err) => {
-    if (err) {
-        console.error("Erreur", err.message);
-    } else {
-        console.log("Connexion SQLite.");
-    }
-});
+const db = new sqlite3.Database('./luminy_connect.sqlite');
 
 function db_fetch(query, args = [], fetchAll = false) {
     return new Promise((resolve, reject) => {
         if (fetchAll) {
+            // db.all 
             db.all(query, args, (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows || []);
+                if (err) {
+                    reject(err); // On casse la promesse
+                } else {
+                    resolve(rows); // On valide 
+                }
             });
         } else {
+            // db.get 
             db.get(query, args, (err, row) => {
-                if (err) reject(err);
-                else resolve(row || null);
+                if (err) {
+                    reject(err); 
+                } else {
+                    resolve(row); 
+                }
             });
         }
     });
@@ -30,8 +28,11 @@ function db_fetch(query, args = [], fetchAll = false) {
 function db_insert(query, args = []) {
     return new Promise((resolve, reject) => {
         db.run(query, args, function(err) {
-            if (err) reject(err);
-            else resolve(this.lastID); 
+            if (err) {
+                reject(err); // On casse la promesse
+            } else {
+                resolve(this.lastID); // On valide avec le nouvel ID
+            }
         });
     });
 }
@@ -39,8 +40,11 @@ function db_insert(query, args = []) {
 function db_update(query, args = []) {
     return new Promise((resolve, reject) => {
         db.run(query, args, function(err) {
-            if (err) reject(err);
-            else resolve(this.changes); 
+            if (err) {
+                reject(err); 
+            } else {
+                resolve(this.changes); 
+            }
         });
     });
 }
