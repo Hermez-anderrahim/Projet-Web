@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "ProjetWeb",
+			"path": ".."
+		},
+		{
+			"name": "templates",
+			"path": "../../site/templates"
+		},
+		{
+			"name": "static",
+			"path": "../../site/static"
+		}
+	],
+	"settings": {}
+}

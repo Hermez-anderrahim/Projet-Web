@@ -1,0 +1,19 @@
+{% include 'en_tete.html' %}
+
+<main>
+    <h2>Poser une question</h2>
+    
+    <form action="/nouvelle-demande" method="POST">
+        
+        <label>Matière :</label><br>
+        <input type="text" name="matiere" placeholder="ex: Algorithmique" required><br><br>
+        
+        <label>Description de votre problème :</label><br>
+        <textarea name="description" rows="6" required style="width: 100%;"></textarea><br><br>
+        
+        <button type="submit" class="btn-principal">Publier la demande</button>
+        
+    </form>
+</main>
+
+{% include 'pied_de_page.html' %}

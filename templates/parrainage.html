@@ -1,0 +1,42 @@
+{% include 'en_tete.html' %}
+
+<main>
+    <h1>Mon Parrainage</h1>
+
+    {% if est_parrain %}
+    <section>
+        <h2>Mes Filleuls</h2>
+        <p>Voici les étudiants que vous accompagnez cette année :</p>
+        
+        <ul class="liste-filleuls">
+            {% for filleul in filleuls %}
+                <li>{{ filleul.nom_utilisateur }}</li>
+            {% else %}
+                <p>Vous n'avez pas encore de filleuls attribués.</p>
+            {% endfor %}
+        </ul>
+    </section>
+
+    {% else %}
+    <section>
+        <h2>Mon Parrain</h2>
+        
+        {% if parrain %}
+        <div class="carte-parrain">
+            <p>Votre parrain est : <strong>{{ parrain.nom_utilisateur }}</strong></p>
+            <p>N'hésitez pas à le contacter pour toute question académique !</p>
+        </div>
+        
+        {% else %}
+        <div class="demande-parrain">
+            <p>Vous n'avez pas encore de parrain.</p>
+            <form action="/demander-parrain" method="POST">
+                <button type="submit" class="btn-principal">Demander un parrain</button>
+            </form>
+        </div>
+        {% endif %}
+        
+    </section>
+    {% endif %} </main>
+
+{% include 'pied_de_page.html' %}

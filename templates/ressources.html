@@ -1,0 +1,40 @@
+{% include 'en_tete.html' %}
+
+<main>
+    <h1>Ressources Pédagogiques</h1>
+    <p>Retrouvez ici les fiches de révision et documents partagés par la communauté.</p>
+
+    <table class="table-ressources">
+        <thead>
+            <tr>
+                <th>Matière</th>
+                <th>Titre du document</th>
+                <th>Partagé par</th>
+                <th>Lien</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ressource in ressources %}
+            <tr>
+                <td><span class="tag">{{ ressource.matiere }}</span></td>
+                <td><strong>{{ ressource.titre }}</strong></td>
+                <td>{{ ressource.nom_utilisateur }}</td>
+                <td><a href="{{ ressource.lien_url }}" target="_blank" class="btn-download">Consulter</a></td>
+            </tr>
+            
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 20px;">
+                    Aucune ressource n'a encore été partagée. Soyez le premier !
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="actions">
+        <a href="/ajouter-ressource" class="btn-principal">Partager un document</a>
+    </div>
+</main>
+
+{% include 'pied_de_page.html' %}

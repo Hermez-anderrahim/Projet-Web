@@ -1,0 +1,29 @@
+{% include 'en_tete.html' %}
+
+<main>
+    <h1>Besoin d'un coup de main ?</h1>
+    <p>Consultez les demandes de vos camarades ou posez votre propre question.</p>
+    
+    <div class="flux-demandes">
+        
+        {% for demande in demandes %}
+        <div class="carte">
+            <div class="badge">{{ demande.statut }}</div>
+            <h3>{{ demande.matiere }}</h3>
+            <p>{{ demande.description }}</p>
+            <div class="auteur">Posté par : <strong>{{ demande.nom_utilisateur }}</strong></div>
+            <a href="/demande/{{ demande.id }}" class="btn-secondary">Voir la discussion</a>
+        </div>
+        
+        {% else %}
+        <p class="vide">Aucune demande d'aide ouverte pour le moment.</p>
+        {% endfor %}
+        
+    </div>
+
+    <div class="actions">
+        <a href="/nouvelle-demande" class="btn-principal">Poser une question</a>
+    </div>
+</main>
+
+{% include 'pied_de_page.html' %}
