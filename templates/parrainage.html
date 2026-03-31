@@ -1,42 +1,59 @@
 {% include 'en_tete.html' %}
 
 <main>
-    <h1>Mon Parrainage</h1>
+  <h1>Mon Parrainage</h1>
 
-    {% if est_parrain %}
-    <section>
-        <h2>Mes Filleuls</h2>
-        <p>Voici les étudiants que vous accompagnez cette année :</p>
-        
-        <ul class="liste-filleuls">
-            {% for filleul in filleuls %}
-                <li>{{ filleul.nom_utilisateur }}</li>
-            {% else %}
-                <p>Vous n'avez pas encore de filleuls attribués.</p>
-            {% endfor %}
-        </ul>
-    </section>
+  {% if est_parrain %}
 
-    {% else %}
-    <section>
-        <h2>Mon Parrain</h2>
-        
-        {% if parrain %}
-        <div class="carte-parrain">
-            <p>Votre parrain est : <strong>{{ parrain.nom_utilisateur }}</strong></p>
-            <p>N'hésitez pas à le contacter pour toute question académique !</p>
-        </div>
-        
-        {% else %}
-        <div class="demande-parrain">
-            <p>Vous n'avez pas encore de parrain.</p>
-            <form action="/demander-parrain" method="POST">
-                <button type="submit" class="btn-principal">Demander un parrain</button>
-            </form>
-        </div>
-        {% endif %}
-        
-    </section>
-    {% endif %} </main>
+  <div class="carte-parrain" style="margin-bottom: 20px;">
+    <div class="avatar lg">{{ session.get('nom', '?')[0]|upper }}</div>
+    <div>
+      <h2 style="margin-bottom: 4px;">{{ session.get('nom') }}</h2>
+      <span class="statut-ouverte">Parrain</span>
+    </div>
+  </div>
+
+  <div class="divider">Mes filleuls ({{ filleuls|length }})</div>
+
+  {% for filleul in filleuls %}
+  <div class="carte-parrain" style="margin-bottom: 10px;">
+    <div class="avatar sm">{{ filleul.nom_utilisateur[0]|upper }}</div>
+    <div>
+      <a href="/utilisateur/{{ filleul.id }}" style="font-size: 14px; font-weight: 500;">
+        {{ filleul.nom_utilisateur }}
+      </a>
+    </div>
+  </div>
+  {% else %}
+  <p class="vide">Aucun filleul pour l'instant.</p>
+  {% endfor %}
+
+  {% else %}
+
+  {% if parrain %}
+  <div class="carte-parrain">
+    <div class="avatar lg">{{ parrain.nom_utilisateur[0]|upper }}</div>
+    <div>
+      <p style="font-size: 12px; color: var(--gris-doux); margin-bottom: 4px;">Votre parrain</p>
+      <h2 style="margin-bottom: 4px;">
+        <a href="/utilisateur/{{ parrain.id }}">{{ parrain.nom_utilisateur }}</a>
+      </h2>
+      <p style="font-size: 13px; color: var(--gris-texte);">
+        N'hésitez pas à le contacter pour toute question académique !
+      </p>
+    </div>
+  </div>
+
+  {% else %}
+  <p style="font-size: 14px; color: var(--gris-texte); margin-bottom: 20px;">
+    Vous n'avez pas encore de parrain.
+  </p>
+  <form action="/demander-parrain" method="POST">
+    <button type="submit">Trouver un parrain</button>
+  </form>
+  {% endif %}
+
+  {% endif %}
+</main>
 
 {% include 'pied_de_page.html' %}

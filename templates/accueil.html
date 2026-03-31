@@ -1,29 +1,30 @@
 {% include 'en_tete.html' %}
 
 <main>
-    <h1>Besoin d'un coup de main ?</h1>
-    <p>Consultez les demandes de vos camarades ou posez votre propre question.</p>
-    
-    <div class="flux-demandes">
-        
-        {% for demande in demandes %}
-        <div class="carte">
-            <div class="badge">{{ demande.statut }}</div>
-            <h3>{{ demande.matiere }}</h3>
-            <p>{{ demande.description }}</p>
-            <div class="auteur">Posté par : <strong>{{ demande.nom_utilisateur }}</strong></div>
-            <a href="/demande/{{ demande.id }}" class="btn-secondary">Voir la discussion</a>
-        </div>
-        
-        {% else %}
-        <p class="vide">Aucune demande d'aide ouverte pour le moment.</p>
-        {% endfor %}
-        
-    </div>
+  <div class="entete-page">
+    <h1>Forum d'entraide</h1>
+    <a href="/nouvelle-demande" class="btn-primary btn">Poser une question</a>
+  </div>
 
-    <div class="actions">
-        <a href="/nouvelle-demande" class="btn-principal">Poser une question</a>
+  {% for demande in demandes %}
+  <div class="carte-demande">
+    <div class="carte-entete">
+      <span class="matiere">{{ demande.matiere }}</span>
+      {% if demande.statut == 'ouverte' %}
+        <span class="statut-ouverte">Ouvert</span>
+      {% else %}
+        <span class="statut-close">Résolu</span>
+      {% endif %}
+      <span class="auteur">par <a href="/utilisateur/{{ demande.auteur_id }}">{{ demande.auteur }}</a></span>
     </div>
+    <p>{{ demande.description }}</p>
+    <a href="/demande/{{ demande.id }}">Voir la discussion →</a>
+  </div>
+
+  {% else %}
+  <p class="vide">Aucune demande pour l'instant. Soyez le premier à poser une question !</p>
+  {% endfor %}
+
 </main>
 
 {% include 'pied_de_page.html' %}

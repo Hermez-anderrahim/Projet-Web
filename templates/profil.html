@@ -1,0 +1,53 @@
+{% include 'en_tete.html' %}
+
+<main>
+  <!-- En-tête profil -->
+  <div class="carte-profil">
+    <div class="avatar lg">{{ user.nom_utilisateur[0]|upper }}</div>
+    <div class="profil-info">
+      <h2>{{ user.nom_utilisateur }}</h2>
+      <p class="role">
+        {% if user.est_parrain %}Parrain — étudiant expérimenté{% else %}Filleul — nouvel arrivant{% endif %}
+      </p>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="val">{{ stats.demandes }}</div>
+      <div class="label">Questions</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">{{ stats.reponses }}</div>
+      <div class="label">Réponses</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">{{ stats.ressources }}</div>
+      <div class="label">Ressources</div>
+    </div>
+  </div>
+
+  <!-- Mes demandes -->
+  <div class="divider">Mes demandes ({{ demandes|length }})</div>
+
+  {% for d in demandes %}
+  <div class="carte-demande">
+    <div class="carte-entete">
+      <span class="matiere">{{ d.matiere }}</span>
+      {% if d.statut == 'ouverte' %}
+        <span class="statut-ouverte">Ouvert</span>
+      {% else %}
+        <span class="statut-close">Résolu</span>
+      {% endif %}
+    </div>
+    <p>{{ d.description }}</p>
+    <a href="/demande/{{ d.id }}">Voir la discussion →</a>
+  </div>
+  {% else %}
+  <p class="vide">Vous n'avez posé aucune question pour l'instant.</p>
+  {% endfor %}
+
+</main>
+
+{% include 'pied_de_page.html' %}

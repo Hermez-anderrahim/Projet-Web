@@ -1,34 +1,59 @@
 {% include 'en_tete.html' %}
 
 <main>
-    <a href="/" class="retour">← Retour à l'accueil</a>
-    
-    <section class="question-detail">
-        <span class="matiere">{{ demande.matiere }}</span>
-        <h2>{{ demande.description }}</h2>
-        <p class="meta">Demandé par {{ demande.nom_utilisateur }}</p>
-    </section>
+  <a href="/" class="lien-retour">← Retour au forum</a>
 
-    <section class="reponses">
-        <h3>Réponses et propositions d'aide</h3>
-        
-        {% for reponse in reponses %}
-        <div class="reponse-item">
-            <strong>{{ reponse.nom_utilisateur }} :</strong>
-            <p>{{ reponse.message }}</p>
-        </div>
-        
-        {% else %}
-        <p>Pas encore de réponse. Soyez le premier à aider !</p>
-        {% endfor %}
-    </section>
+  <!-- Question -->
+  <div class="carte-demande">
+    <div class="carte-entete">
+      <span class="matiere">{{ demande.matiere }}</span>
+      {% if demande.statut == 'ouverte' %}
+        <span class="statut-ouverte">Ouvert</span>
+      {% else %}
+        <span class="statut-close">Résolu</span>
+      {% endif %}
+      <span class="auteur">par <a href="/utilisateur/{{ demande.auteur_id }}">{{ demande.auteur }}</a></span>
+    </div>
+    <p>{{ demande.description }}</p>
 
-    <section class="formulaire-reponse">
-        <form action="/demande/{{ demande.id }}/repondre" method="POST">
-            <textarea name="message" placeholder="Proposez votre aide ou donnez un élément de réponse..." required></textarea>
-            <button type="submit" class="btn-principal">Envoyer ma réponse</button>
-        </form>
-    </section>
+    {% if session.get('user_id') == demande.auteur_id and demande.statut == 'ouverte' %}
+    <form action="/demande/{{ demande.id }}/cloturer" method="POST" style="margin-top: 4px;">
+      <button type="submit" class="btn-danger"
+              onclick="return confirm('Marquer cette demande comme résolue ?')">
+        Clôturer
+      </button>
+    </form>
+    {% endif %}
+  </div>
+
+  <!-- Réponses -->
+  <div class="divider">{{ reponses|length }} réponse{% if reponses|length != 1 %}s{% endif %}</div>
+
+  {% for reponse in reponses %}
+  <div class="carte-reponse">
+    <p>{{ reponse.message }}</p>
+    <small>par <a href="/utilisateur/{{ reponse.auteur_id }}">{{ reponse.auteur }}</a></small>
+  </div>
+  {% else %}
+  <p class="vide" style="padding: 16px 0;">Aucune réponse pour l'instant. Soyez le premier à aider !</p>
+  {% endfor %}
+
+  <!-- Formulaire de réponse -->
+  {% if demande.statut == 'ouverte' %}
+  <div class="divider">Apporter une réponse</div>
+  <form action="/demande/{{ demande.id }}/repondre" method="POST">
+    <label>
+      Votre réponse
+      <textarea name="message" placeholder="Proposez votre aide…" required></textarea>
+    </label>
+    <button type="submit">Envoyer</button>
+  </form>
+  {% else %}
+  <p style="font-size: 13px; color: var(--gris-doux); margin-top: 16px;">
+    Cette demande est clôturée.
+  </p>
+  {% endif %}
+
 </main>
 
 {% include 'pied_de_page.html' %}

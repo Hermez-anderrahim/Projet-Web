@@ -79,10 +79,11 @@ def authentifier_utilisateur(nom_utilisateur, mot_de_passe):
 
 # ── Demandes d'aide ────────────────────────────────────────
 def obtenir_demandes():
-    """Retourne toutes les demandes d'aide avec le nom de leur auteur."""
+    """Retourne toutes les demandes d'aide avec le nom et l'id de leur auteur."""
     query = """
         SELECT demande_aide.id, demande_aide.matiere, demande_aide.description,
-               demande_aide.statut, utilisateur.nom_utilisateur AS auteur
+               demande_aide.statut, demande_aide.auteur_id,
+               utilisateur.nom_utilisateur AS auteur
         FROM demande_aide
         JOIN utilisateur ON demande_aide.auteur_id = utilisateur.id
         ORDER BY demande_aide.id DESC
@@ -120,7 +121,8 @@ def cloturer_demande(demande_id, auteur_id):
 def get_reponses(demande_id):
     """Retourne toutes les réponses liées à une demande."""
     query = """
-        SELECT reponse.id, reponse.message, utilisateur.nom_utilisateur AS auteur
+        SELECT reponse.id, reponse.message, reponse.auteur_id,
+               utilisateur.nom_utilisateur AS auteur
         FROM reponse
         JOIN utilisateur ON reponse.auteur_id = utilisateur.id
         WHERE reponse.demande_id = ?
@@ -135,13 +137,28 @@ def creer_reponse(demande_id, auteur_id, message):
     return db_insert(query, (demande_id, auteur_id, message))
 
 
+def get_reponses_de(user_id):
+    """Retourne toutes les réponses d'un utilisateur avec la question associée."""
+    query = """
+        SELECT reponse.id, reponse.message,
+               demande_aide.id        AS demande_id,
+               demande_aide.matiere,
+               demande_aide.description AS question
+        FROM reponse
+        JOIN demande_aide ON reponse.demande_id = demande_aide.id
+        WHERE reponse.auteur_id = ?
+        ORDER BY reponse.id DESC
+    """
+    return db_fetch(query, (user_id,), fetch_all=True)
+
+
 # ── Ressources ────────────────────────────────────────────
 
 def obtenir_ressources():
-    """Retourne toutes les ressources avec le nom de leur auteur."""
+    """Retourne toutes les ressources avec le nom et l'id de leur auteur."""
     query = """
         SELECT ressource.id, ressource.matiere, ressource.titre, ressource.lien_url,
-               utilisateur.nom_utilisateur AS auteur
+               ressource.auteur_id, utilisateur.nom_utilisateur AS auteur
         FROM ressource
         JOIN utilisateur ON ressource.auteur_id = utilisateur.id
         ORDER BY ressource.id DESC
@@ -183,6 +200,37 @@ def obtenir_filleuls_de(parrain_id):
         WHERE parrainage.parrain_id = ?
     """
     return db_fetch(query, (parrain_id,), fetch_all=True)
+
+
+# ── Profil utilisateur ───────────────────────────────────
+
+def get_utilisateur(user_id):
+    """Retourne les informations publiques d'un utilisateur."""
+    query = "SELECT id, nom_utilisateur, est_parrain FROM utilisateur WHERE id = ?"
+    return db_fetch(query, (user_id,))
+
+
+def get_stats_utilisateur(user_id):
+    """Retourne les compteurs d'activité d'un utilisateur."""
+    demandes   = db_fetch("SELECT COUNT(*) AS c FROM demande_aide WHERE auteur_id = ?", (user_id,))
+    reponses   = db_fetch("SELECT COUNT(*) AS c FROM reponse      WHERE auteur_id = ?", (user_id,))
+    ressources = db_fetch("SELECT COUNT(*) AS c FROM ressource     WHERE auteur_id = ?", (user_id,))
+    return {
+        'demandes':   demandes['c']   if demandes   else 0,
+        'reponses':   reponses['c']   if reponses   else 0,
+        'ressources': ressources['c'] if ressources else 0,
+    }
+
+
+def obtenir_demandes_de(user_id):
+    """Retourne les demandes d'aide créées par un utilisateur."""
+    query = """
+        SELECT id, matiere, description, statut
+        FROM demande_aide
+        WHERE auteur_id = ?
+        ORDER BY id DESC
+    """
+    return db_fetch(query, (user_id,), fetch_all=True)
 
 
 def get_parrain_disponible(filleul_id):

@@ -1,20 +1,24 @@
 {% include 'en_tete.html' %}
 
 <main>
-    <h2>Partager un document</h2>
-    
-    <form action="/ajouter-ressource" method="POST">
-        <label>Matière :</label>
-        <input type="text" name="matiere" placeholder="ex: Web" required>
-        
-        <label>Titre du document :</label>
-        <input type="text" name="titre" placeholder="ex: Fiche révision CSS" required>
-        
-        <label>Lien URL (Google Drive, etc.) :</label>
-        <input type="url" name="lien_url" placeholder="https://..." required>
-        
-        <button type="submit" class="btn-principal">Ajouter à la bibliothèque</button>
-    </form>
+  <a href="/ressources" class="lien-retour">← Retour aux ressources</a>
+  <h1>Partager un document</h1>
+
+  <form action="/ajouter-ressource" method="POST">
+    <label>
+      Matière
+      <input type="text" name="matiere" placeholder="ex : Web, Maths, Algorithmique…" required>
+    </label>
+    <label>
+      Titre du document
+      <input type="text" name="titre" placeholder="ex : Fiche révision CSS" required>
+    </label>
+    <label>
+      Lien URL
+      <input type="url" name="lien_url" placeholder="https://drive.google.com/…" required>
+    </label>
+    <button type="submit">Ajouter à la bibliothèque</button>
+  </form>
 </main>
 
 {% include 'pied_de_page.html' %}

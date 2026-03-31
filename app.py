@@ -14,7 +14,11 @@ from data_model import (
     get_demande,
     get_reponses,
     creer_reponse,
-    get_parrain_disponible
+    get_parrain_disponible,
+    get_utilisateur,
+    get_stats_utilisateur,
+    obtenir_demandes_de,
+    get_reponses_de,
 )
 from create_db import init_db
 
@@ -141,6 +145,28 @@ def demander_parrain():
     if parrain:
         creer_parrainage(parrain['id'], session['user_id'])
     return redirect(url_for('mon_parrainage'))
+
+
+# ── Profil ─────────────────────────────────────────────────
+@app.route('/profil')
+@login_required
+def profil():
+    user     = get_utilisateur(session['user_id'])
+    stats    = get_stats_utilisateur(session['user_id'])
+    demandes = obtenir_demandes_de(session['user_id'])
+    return render_template('profil.html', user=user, stats=stats, demandes=demandes)
+
+
+# ── Profil public ──────────────────────────────────────────
+@app.route('/utilisateur/<int:user_id>')
+@login_required
+def profil_public(user_id):
+    user     = get_utilisateur(user_id)
+    if not user:
+        return redirect(url_for('accueil'))
+    stats    = get_stats_utilisateur(user_id)
+    reponses = get_reponses_de(user_id)
+    return render_template('profil_public.html', user=user, stats=stats, reponses=reponses)
 
 
 # ── Lancement ──────────────────────────────────────────────

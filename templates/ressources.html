@@ -1,40 +1,27 @@
 {% include 'en_tete.html' %}
 
 <main>
-    <h1>Ressources Pédagogiques</h1>
-    <p>Retrouvez ici les fiches de révision et documents partagés par la communauté.</p>
+  <div class="entete-page">
+    <h1>Ressources pédagogiques</h1>
+    <a href="/ajouter-ressource" class="btn btn-primary">Partager un document</a>
+  </div>
 
-    <table class="table-ressources">
-        <thead>
-            <tr>
-                <th>Matière</th>
-                <th>Titre du document</th>
-                <th>Partagé par</th>
-                <th>Lien</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ressource in ressources %}
-            <tr>
-                <td><span class="tag">{{ ressource.matiere }}</span></td>
-                <td><strong>{{ ressource.titre }}</strong></td>
-                <td>{{ ressource.nom_utilisateur }}</td>
-                <td><a href="{{ ressource.lien_url }}" target="_blank" class="btn-download">Consulter</a></td>
-            </tr>
-            
-            {% else %}
-            <tr>
-                <td colspan="4" style="text-align: center; padding: 20px;">
-                    Aucune ressource n'a encore été partagée. Soyez le premier !
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <div class="actions">
-        <a href="/ajouter-ressource" class="btn-principal">Partager un document</a>
+  {% for r in ressources %}
+  <div class="carte-ressource">
+    <div>
+      <div class="titre">{{ r.titre }}</div>
+      <div class="meta">
+        <span class="matiere">{{ r.matiere }}</span>
+        &nbsp;· partagé par <a href="/utilisateur/{{ r.auteur_id }}">{{ r.auteur }}</a>
+      </div>
     </div>
+    <a href="{{ r.lien_url }}" target="_blank" class="btn btn-outline">Consulter</a>
+  </div>
+
+  {% else %}
+  <p class="vide">Aucune ressource partagée. Soyez le premier !</p>
+  {% endfor %}
+
 </main>
 
 {% include 'pied_de_page.html' %}

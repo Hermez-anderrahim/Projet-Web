@@ -1,0 +1,56 @@
+{% include 'en_tete.html' %}
+
+<main>
+  <a href="javascript:history.back()" class="lien-retour">← Retour</a>
+
+  <!-- En-tête profil -->
+  <div class="carte-profil">
+    <div class="avatar lg">{{ user.nom_utilisateur[0]|upper }}</div>
+    <div class="profil-info">
+      <h2>{{ user.nom_utilisateur }}</h2>
+      <p class="role">
+        {% if user.est_parrain %}Parrain — étudiant expérimenté{% else %}Filleul — nouvel arrivant{% endif %}
+      </p>
+    </div>
+    <span class="score" style="margin-left: auto;">
+      {{ stats.reponses }} réponse{% if stats.reponses != 1 %}s{% endif %}
+    </span>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="val">{{ stats.demandes }}</div>
+      <div class="label">Questions</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">{{ stats.reponses }}</div>
+      <div class="label">Réponses</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">{{ stats.ressources }}</div>
+      <div class="label">Ressources</div>
+    </div>
+  </div>
+
+  <!-- Toutes les réponses -->
+  <div class="divider">
+    Réponses de {{ user.nom_utilisateur }} ({{ reponses|length }})
+  </div>
+
+  {% for r in reponses %}
+  <div class="carte-reponse">
+    <p>{{ r.message }}</p>
+    <small>
+      <span class="matiere">{{ r.matiere }}</span>
+      &nbsp;·
+      <a href="/demande/{{ r.demande_id }}">{{ r.question | truncate(60) }}</a>
+    </small>
+  </div>
+  {% else %}
+  <p class="vide">Cet étudiant n'a pas encore répondu à des questions.</p>
+  {% endfor %}
+
+</main>
+
+{% include 'pied_de_page.html' %}
