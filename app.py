@@ -68,7 +68,7 @@ def accueil():
     return render_template('accueil.html', demandes=demandes)
 
 
-# ── Demandes d'aide ────────────────────────────────────────
+
 @app.route('/nouvelle-demande', methods=['GET'])
 @login_required
 def nouvelle_demande_get():
