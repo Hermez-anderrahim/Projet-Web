@@ -91,6 +91,44 @@ def obtenir_demandes():
     return db_fetch(query, fetch_all=True)
 
 
+def obtenir_matieres():
+    """Retourne la liste des matières distinctes présentes dans les demandes et les ressources."""
+    query = """
+        SELECT DISTINCT matiere FROM demande_aide
+        UNION
+        SELECT DISTINCT matiere FROM ressource
+        ORDER BY matiere
+    """
+    rows = db_fetch(query, fetch_all=True)
+    return [row['matiere'] for row in rows]
+
+
+def chercher_demandes(q='', matiere=''):
+    """Retourne les demandes filtrées par matière et/ou recherche textuelle."""
+    conditions, args = [], []
+
+    if matiere:
+        conditions.append("demande_aide.matiere = ?")
+        args.append(matiere)
+
+    if q:
+        terme = f"%{q.lower()}%"
+        conditions.append("(LOWER(demande_aide.matiere) LIKE ? OR LOWER(demande_aide.description) LIKE ?)")
+        args += [terme, terme]
+
+    where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    query = f"""
+        SELECT demande_aide.id, demande_aide.matiere, demande_aide.description,
+               demande_aide.statut, demande_aide.auteur_id,
+               utilisateur.nom_utilisateur AS auteur
+        FROM demande_aide
+        JOIN utilisateur ON demande_aide.auteur_id = utilisateur.id
+        {where}
+        ORDER BY demande_aide.id DESC
+    """
+    return db_fetch(query, args, fetch_all=True)
+
+
 def get_demande(demande_id):
     #Retourne une demande d'aide par son identifiant.
     query = """

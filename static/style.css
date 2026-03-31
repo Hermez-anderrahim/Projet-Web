@@ -442,6 +442,92 @@ button:active, .btn:active { transform: scale(0.98); }
   padding: 32px 0;
 }
 
+/* ── Barre de recherche ──────────────────────────────────── */
+.barre-recherche {
+  background: var(--blanc);
+  border: 0.5px solid var(--gris-bord);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-recherche {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.form-recherche input[type="text"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--gris-bord);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--gris-bg);
+  color: var(--noir);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-recherche input[type="text"]:focus {
+  border-color: var(--violet);
+  background: var(--blanc);
+}
+
+.filtres-matieres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.filtres-label {
+  font-size: 13px;
+  color: var(--gris-doux);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filtre-matiere {
+  font-size: 13px;
+  padding: 3px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--gris-bord);
+  background: var(--blanc);
+  color: var(--gris-texte);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+
+.filtre-matiere:hover {
+  border-color: var(--violet);
+  color: var(--violet);
+  text-decoration: none;
+}
+
+.filtre-matiere.actif {
+  background: var(--violet);
+  color: var(--blanc);
+  border-color: var(--violet);
+  font-weight: 500;
+}
+
+.filtre-info {
+  font-size: 13px;
+  color: var(--gris-doux);
+  margin-bottom: 16px;
+}
+
+.filtre-info strong {
+  color: var(--noir);
+}
+
 /* ── Footer ──────────────────────────────────────────────── */
 footer {
   border-top: 0.5px solid var(--gris-bord);
@@ -459,4 +545,6 @@ footer {
   .entete-page { flex-direction: column; align-items: flex-start; gap: 12px; }
   .stats-row { flex-wrap: wrap; }
   .carte-profil { flex-direction: column; text-align: center; }
+  .form-recherche { gap: 8px; }
+  .form-recherche .btn { padding: 7px 10px; }
 }
