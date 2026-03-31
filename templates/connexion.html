@@ -1,52 +1,60 @@
-{% include 'en_tete.html' %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Luminy-Connect</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
 
-<main>
-  <div class="page-connexion">
-    <h1>Luminy-Connect</h1>
-    <p class="sous-titre">Plateforme d'entraide des étudiants</p>
+<div class="page-connexion">
+  <h1>Luminy-Connect</h1>
+  <p class="sous-titre">Plateforme d'entraide étudiante</p>
 
-    {% if erreur %}
-    <div class="erreur">{{ erreur }}</div>
-    {% endif %}
+  {% if erreur %}
+  <p class="erreur">{{ erreur }}</p>
+  {% endif %}
 
-    <section>
-      <h2>Se connecter</h2>
-      <form action="/connexion" method="POST">
-        <label>
-          Nom d'utilisateur
-          <input type="text" name="nom_utilisateur" placeholder="Votre identifiant" required>
-        </label>
-        <label>
-          Mot de passe
-          <input type="password" name="mot_de_passe" placeholder="••••••••" required>
-        </label>
-        <button type="submit">Se connecter</button>
-      </form>
-    </section>
-
-    <section>
-      <h2>Créer un compte</h2>
-      <form action="/inscription" method="POST">
-        <label>
-          Nom d'utilisateur
-          <input type="text" name="nom_utilisateur" placeholder="Choisissez un identifiant" required>
-        </label>
-        <label>
-          Mot de passe
-          <input type="password" name="mot_de_passe" placeholder="Minimum 6 caractères" required>
-        </label>
-        <label>
-          Votre profil
-          <select name="est_parrain" required>
-            <option value="0">Nouvel arrivant — Filleul (L1)</option>
-            <option value="1">Étudiant expérimenté — Parrain (L2/L3)</option>
-          </select>
-        </label>
-        <button type="submit">Créer mon compte</button>
-      </form>
-    </section>
-
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('connexion', this)">Se connecter</button>
+    <button class="tab-btn"        onclick="switchTab('inscription', this)">Créer un compte</button>
   </div>
-</main>
 
-{% include 'pied_de_page.html' %}
+  <div id="tab-connexion" class="tab-panel active">
+    <form action="{{ url_for('connexion_post') }}" method="POST">
+      <label for="c-nom">Nom d'utilisateur</label>
+      <input type="text" id="c-nom" name="nom_utilisateur" required>
+      <label for="c-mdp">Mot de passe</label>
+      <input type="password" id="c-mdp" name="mot_de_passe" required>
+      <button type="submit">Connexion</button>
+    </form>
+  </div>
+
+  <div id="tab-inscription" class="tab-panel">
+    <form action="{{ url_for('inscription') }}" method="POST">
+      <label for="i-nom">Nom d'utilisateur</label>
+      <input type="text" id="i-nom" name="nom_utilisateur" required>
+      <label for="i-mdp">Mot de passe</label>
+      <input type="password" id="i-mdp" name="mot_de_passe" required>
+      <label style="flex-direction: row; align-items: center; gap: 8px;">
+        <input type="checkbox" name="est_parrain" value="1">
+        Je suis un étudiant expérimenté (L2/L3)
+      </label>
+      <button type="submit">S'inscrire</button>
+    </form>
+  </div>
+</div>
+
+<footer>Luminy-Connect — Plateforme d'entraide étudiante © 2026</footer>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
