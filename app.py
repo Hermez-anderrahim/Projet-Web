@@ -4,6 +4,8 @@ from data_model import (
     inscrire_utilisateur,
     authentifier_utilisateur,
     obtenir_demandes,
+    obtenir_matieres,
+    chercher_demandes,
     creer_demande,
     cloturer_demande,
     creer_parrainage,
@@ -68,8 +70,17 @@ def deconnexion():
 @app.route('/')
 @login_required
 def accueil():
-    demandes = obtenir_demandes()
-    return render_template('accueil.html', demandes=demandes)
+    q       = request.args.get('q', '').strip()
+    matiere = request.args.get('matiere', '').strip()
+    matieres = obtenir_matieres()
+    demandes = chercher_demandes(q=q, matiere=matiere) if (q or matiere) else obtenir_demandes()
+    return render_template(
+        'accueil.html',
+        demandes=demandes,
+        matieres=matieres,
+        q=q,
+        matiere_active=matiere,
+    )
 
 
 

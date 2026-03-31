@@ -6,6 +6,47 @@
     <a href="/nouvelle-demande" class="btn-primary btn">Poser une question</a>
   </div>
 
+  <!-- Barre de recherche -->
+  <div class="barre-recherche">
+    <form class="form-recherche" method="get" action="/">
+      <input
+        type="text"
+        name="q"
+        placeholder="Rechercher une question..."
+        value="{{ q }}"
+        autocomplete="off"
+      >
+      <button type="submit" class="btn-primary btn">Rechercher</button>
+      {% if q or matiere_active %}
+      <a href="/" class="btn-outline btn">Effacer</a>
+      {% endif %}
+    </form>
+
+    {% if matieres %}
+    <div class="filtres-matieres">
+      <span class="filtres-label">Thématiques :</span>
+      <a href="/" class="filtre-matiere{% if not matiere_active %} actif{% endif %}">Toutes</a>
+      {% for m in matieres %}
+      <a href="/?matiere={{ m | urlencode }}"
+         class="filtre-matiere{% if matiere_active == m %} actif{% endif %}">{{ m }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Résultat actif -->
+  {% if matiere_active %}
+  <p class="filtre-info">
+    Filtré par thématique : <strong>{{ matiere_active }}</strong>
+    &mdash; <a href="/">voir toutes les questions</a>
+  </p>
+  {% elif q %}
+  <p class="filtre-info">
+    Résultats pour : <strong>{{ q }}</strong>
+    &mdash; <a href="/">voir toutes les questions</a>
+  </p>
+  {% endif %}
+
   {% for demande in demandes %}
   <div class="carte-demande">
     <div class="carte-entete">
@@ -22,7 +63,13 @@
   </div>
 
   {% else %}
-  <p class="vide">Aucune demande pour l'instant. Soyez le premier à poser une question !</p>
+  <p class="vide">
+    {% if q or matiere_active %}
+      Aucune question trouvée pour cette recherche.
+    {% else %}
+      Aucune demande pour l'instant. Soyez le premier à poser une question !
+    {% endif %}
+  </p>
   {% endfor %}
 
 </main>
