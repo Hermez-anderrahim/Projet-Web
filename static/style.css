@@ -288,32 +288,37 @@ button:active, .btn:active { transform: scale(0.98); }
   border-bottom: 0.5px solid var(--gris-bord);
 }
 
-/* ── Connexion (page centrée) ────────────────────────────── */
-.page-connexion {
-  max-width: 400px;
-  margin: 60px auto;
-  background: var(--blanc);
-  border: 0.5px solid var(--gris-bord);
-  border-radius: 16px;
-  padding: 32px;
-}
-
-.page-connexion h1 {
-  color: var(--violet);
-  margin-bottom: 4px;
-}
-
-.page-connexion .sous-titre {
-  font-size: 14px;
-  color: var(--gris-doux);
+/* ── Tabs connexion ──────────────────────────────────────── */
+.tabs {
+  display: flex;
+  border-bottom: 0.5px solid var(--gris-bord);
   margin-bottom: 24px;
 }
 
-.page-connexion section + section {
-  margin-top: 28px;
-  padding-top: 28px;
-  border-top: 0.5px solid var(--gris-bord);
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 0;
+  margin-bottom: -1px;
+  font-size: 14px;
+  color: var(--gris-doux);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  border-radius: 0;
 }
+
+.tab-btn:hover { color: var(--violet); }
+
+.tab-btn.active {
+  color: var(--violet);
+  font-weight: 500;
+  border-bottom-color: var(--violet);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: flex; flex-direction: column; gap: 12px; }
 
 /* ── Ressources ──────────────────────────────────────────── */
 .carte-ressource {
