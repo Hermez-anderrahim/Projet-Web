@@ -45,7 +45,7 @@ def db_update(query, args=(), db_name=DBFILENAME):
         return cur.rowcount
     
 def inscrire_utilisateur(nom_utilisateur, mot_de_passe, est_parrain):
-    """Inscrit un nouvel utilisateur en sécurisant son mot de passe."""
+    #Inscrit un nouvel utilisateur en sécurisant son mot de passe.
     
     # On transforme le mot de passe
     mot_de_passe_hache = generate_password_hash(mot_de_passe)
@@ -64,7 +64,7 @@ def inscrire_utilisateur(nom_utilisateur, mot_de_passe, est_parrain):
 
 
 def authentifier_utilisateur(nom_utilisateur, mot_de_passe):
-    """Vérifie le nom d'utilisateur et compare le mot de passe avec le hachage."""
+    #Vérifie le nom d'utilisateur et compare le mot de passe avec le hachage.
     
     # On cherche l'utilisateur UNIQUEMENT par son nom dans la base
     query = "SELECT id, mot_de_passe, est_parrain FROM utilisateur WHERE nom_utilisateur = ?"
@@ -79,7 +79,7 @@ def authentifier_utilisateur(nom_utilisateur, mot_de_passe):
 
 # ── Demandes d'aide ────────────────────────────────────────
 def obtenir_demandes():
-    """Retourne toutes les demandes d'aide avec le nom et l'id de leur auteur."""
+    #Retourne toutes les demandes d'aide avec le nom et l'id de leur auteur.
     query = """
         SELECT demande_aide.id, demande_aide.matiere, demande_aide.description,
                demande_aide.statut, demande_aide.auteur_id,
@@ -92,7 +92,7 @@ def obtenir_demandes():
 
 
 def get_demande(demande_id):
-    """Retourne une demande d'aide par son identifiant."""
+    #Retourne une demande d'aide par son identifiant.
     query = """
         SELECT demande_aide.id, demande_aide.matiere, demande_aide.description,
                demande_aide.statut, demande_aide.auteur_id,
@@ -105,13 +105,13 @@ def get_demande(demande_id):
 
 
 def creer_demande(auteur_id, matiere, description):
-    """Crée une nouvelle demande d'aide."""
+    #Crée une nouvelle demande d'aide.
     query = "INSERT INTO demande_aide (auteur_id, matiere, description) VALUES (?, ?, ?)"
     return db_insert(query, (auteur_id, matiere, description))
 
 
 def cloturer_demande(demande_id, auteur_id):
-    """Clôture une demande d'aide si l'utilisateur en est l'auteur."""
+    #Clôture une demande d'aide si l'utilisateur en est l'auteur.
     query = "UPDATE demande_aide SET statut = 'close' WHERE id = ? AND auteur_id = ?"
     db_update(query, (demande_id, auteur_id))
 
@@ -119,7 +119,7 @@ def cloturer_demande(demande_id, auteur_id):
 # ── Réponses ──────────────────────────────────────────────
 
 def get_reponses(demande_id):
-    """Retourne toutes les réponses liées à une demande."""
+    #Retourne toutes les réponses liées à une demande.
     query = """
         SELECT reponse.id, reponse.message, reponse.auteur_id,
                utilisateur.nom_utilisateur AS auteur
@@ -132,13 +132,13 @@ def get_reponses(demande_id):
 
 
 def creer_reponse(demande_id, auteur_id, message):
-    """Ajoute une réponse à une demande d'aide."""
+    #Ajoute une réponse à une demande d'aide.
     query = "INSERT INTO reponse (demande_id, auteur_id, message) VALUES (?, ?, ?)"
     return db_insert(query, (demande_id, auteur_id, message))
 
 
 def get_reponses_de(user_id):
-    """Retourne toutes les réponses d'un utilisateur avec la question associée."""
+    #Retourne toutes les réponses d'un utilisateur avec la question associée.
     query = """
         SELECT reponse.id, reponse.message,
                demande_aide.id        AS demande_id,
@@ -155,7 +155,7 @@ def get_reponses_de(user_id):
 # ── Ressources ────────────────────────────────────────────
 
 def obtenir_ressources():
-    """Retourne toutes les ressources avec le nom et l'id de leur auteur."""
+    #Retourne toutes les ressources avec le nom et l'id de leur auteur.
     query = """
         SELECT ressource.id, ressource.matiere, ressource.titre, ressource.lien_url,
                ressource.auteur_id, utilisateur.nom_utilisateur AS auteur
@@ -167,7 +167,7 @@ def obtenir_ressources():
 
 
 def ajouter_ressource(auteur_id, matiere, titre, lien_url):
-    """Ajoute une nouvelle ressource partagée."""
+    #Ajoute une nouvelle ressource partagée.
     query = "INSERT INTO ressource (auteur_id, matiere, titre, lien_url) VALUES (?, ?, ?, ?)"
     return db_insert(query, (auteur_id, matiere, titre, lien_url))
 
@@ -175,13 +175,13 @@ def ajouter_ressource(auteur_id, matiere, titre, lien_url):
 # ── Parrainage ────────────────────────────────────────────
 
 def creer_parrainage(parrain_id, filleul_id):
-    """Crée un lien de parrainage entre un parrain et un filleul."""
+    #Crée un lien de parrainage entre un parrain et un filleul.
     query = "INSERT INTO parrainage (parrain_id, filleul_id) VALUES (?, ?)"
     return db_insert(query, (parrain_id, filleul_id))
 
 
 def obtenir_parrain_de(filleul_id):
-    """Retourne le parrain d'un filleul, ou None s'il n'en a pas."""
+    #Retourne le parrain d'un filleul, ou None s'il n'en a pas.
     query = """
         SELECT utilisateur.id, utilisateur.nom_utilisateur
         FROM parrainage
@@ -192,7 +192,7 @@ def obtenir_parrain_de(filleul_id):
 
 
 def obtenir_filleuls_de(parrain_id):
-    """Retourne la liste des filleuls d'un parrain."""
+    #Retourne la liste des filleuls d'un parrain.
     query = """
         SELECT utilisateur.id, utilisateur.nom_utilisateur
         FROM parrainage
@@ -205,13 +205,13 @@ def obtenir_filleuls_de(parrain_id):
 # ── Profil utilisateur ───────────────────────────────────
 
 def get_utilisateur(user_id):
-    """Retourne les informations publiques d'un utilisateur."""
+    #Retourne les informations publiques d'un utilisateur.
     query = "SELECT id, nom_utilisateur, est_parrain FROM utilisateur WHERE id = ?"
     return db_fetch(query, (user_id,))
 
 
 def get_stats_utilisateur(user_id):
-    """Retourne les compteurs d'activité d'un utilisateur."""
+    #Retourne les compteurs d'activité d'un utilisateur.
     demandes   = db_fetch("SELECT COUNT(*) AS c FROM demande_aide WHERE auteur_id = ?", (user_id,))
     reponses   = db_fetch("SELECT COUNT(*) AS c FROM reponse      WHERE auteur_id = ?", (user_id,))
     ressources = db_fetch("SELECT COUNT(*) AS c FROM ressource     WHERE auteur_id = ?", (user_id,))
@@ -223,7 +223,7 @@ def get_stats_utilisateur(user_id):
 
 
 def obtenir_demandes_de(user_id):
-    """Retourne les demandes d'aide créées par un utilisateur."""
+    #Retourne les demandes d'aide créées par un utilisateur.
     query = """
         SELECT id, matiere, description, statut
         FROM demande_aide
