@@ -77,3 +77,69 @@ def authentifier_utilisateur(nom_utilisateur, mot_de_passe):
     else:
         # Échec (mauvais nom ou mauvais mot de passe)
         return -1
+    
+def obtenir_demandes():
+    #Retourne toutes les demandes ouvertes avec le nom de l'auteur.
+    query = """
+        SELECT d.id, d.matiere, d.description, d.statut, d.auteur_id,
+               u.nom_utilisateur AS auteur
+        FROM demande_aide d
+        JOIN utilisateur u ON d.auteur_id = u.id
+        WHERE d.statut = 'ouverte'
+        ORDER BY d.id DESC
+    """
+    return db_fetch(query, fetch_all=True)
+
+
+def creer_demande(auteur_id, matiere, description):
+    #Insère une nouvelle demande d'aide avec le statut 'ouverte' par défaut.
+    query = """
+        INSERT INTO demande_aide (auteur_id, matiere, description)
+        VALUES (?, ?, ?)
+    """
+    return db_insert(query, (auteur_id, matiere, description))
+
+
+def cloturer_demande(demande_id, auteur_id):
+    #Passe le statut à 'résolue', uniquement si l'auteur correspond.
+    query = """
+        UPDATE demande_aide
+        SET statut = 'résolue'
+        WHERE id = ? AND auteur_id = ?
+    """
+    lignes_modifiees = db_update(query, (demande_id, auteur_id))
+    return lignes_modifiees > 0
+
+
+def get_demande(demande_id):
+    #Retourne une demande précise avec le nom de son auteur.
+    query = """
+        SELECT d.id, d.matiere, d.description, d.statut, d.auteur_id,
+               u.nom_utilisateur AS auteur
+        FROM demande_aide d
+        JOIN utilisateur u ON d.auteur_id = u.id
+        WHERE d.id = ?
+    """
+    return db_fetch(query, (demande_id,))
+
+
+def get_reponses(demande_id):
+    #Retourne toutes les réponses d'une demande avec le nom de leur auteur.
+    query = """
+        SELECT r.id, r.message, r.auteur_id,
+               u.nom_utilisateur AS auteur
+        FROM reponse r
+        JOIN utilisateur u ON r.auteur_id = u.id
+        WHERE r.demande_id = ?
+        ORDER BY r.id ASC
+    """
+    return db_fetch(query, (demande_id,), fetch_all=True)
+
+
+def creer_reponse(demande_id, auteur_id, message):
+    #Insère une nouvelle réponse dans le fil de discussion.
+    query = """
+        INSERT INTO reponse (demande_id, auteur_id, message)
+        VALUES (?, ?, ?)
+    """
+    return db_insert(query, (demande_id, auteur_id, message))
