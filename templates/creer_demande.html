@@ -1,6 +1,6 @@
 {% include 'en_tete.html' %}
 
-<main>
+<main style="max-width: 1100px;">
   <a href="/" class="lien-retour">← Retour au forum</a>
   <h1>Poser une question</h1>
 
@@ -11,9 +11,13 @@
     </label>
     <label>
       Description du problème
-      <textarea name="description" placeholder="Expliquez votre question en détail…" required></textarea>
+      <textarea name="description"
+                placeholder="Expliquez votre question en détail…"
+                required></textarea>
     </label>
-    <button type="submit">Publier la demande</button>
+    <button type="submit" style="align-self: flex-start; padding: 10px 32px;">
+      Publier la demande
+    </button>
   </form>
 </main>
 

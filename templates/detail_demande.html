@@ -13,17 +13,18 @@
         <span class="statut-close">Résolu</span>
       {% endif %}
       <span class="auteur">par <a href="/utilisateur/{{ demande.auteur_id }}">{{ demande.auteur }}</a></span>
-    </div>
-    <p>{{ demande.description }}</p>
 
-    {% if session.get('user_id') == demande.auteur_id and demande.statut == 'ouverte' %}
-    <form action="/demande/{{ demande.id }}/cloturer" method="POST" style="margin-top: 4px;">
-      <button type="submit" class="btn-danger"
-              onclick="return confirm('Marquer cette demande comme résolue ?')">
-        Clôturer
-      </button>
-    </form>
-    {% endif %}
+      {% if session.get('user_id') == demande.auteur_id and demande.statut == 'ouverte' %}
+      <form action="/demande/{{ demande.id }}/cloturer" method="POST" style="margin-left: auto;">
+        <button type="submit" class="btn-danger"
+                onclick="return confirm('Marquer cette demande comme résolue ?')">
+          Marquer comme résolu
+        </button>
+      </form>
+      {% endif %}
+    </div>
+
+    <p>{{ demande.description }}</p>
   </div>
 
   <!-- Réponses -->
@@ -50,7 +51,7 @@
   </form>
   {% else %}
   <p style="font-size: 13px; color: var(--gris-doux); margin-top: 16px;">
-    Cette demande est clôturée.
+    Cette demande est clôturée — elle a été marquée comme résolue par son auteur.
   </p>
   {% endif %}
 
