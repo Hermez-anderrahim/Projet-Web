@@ -101,7 +101,7 @@ def repondre(demande_id):
 @login_required
 def cloturer(demande_id):
     cloturer_demande(demande_id, session['user_id'])
-    return redirect(url_for('accueil'))
+    return redirect(url_for('detail_demande', demande_id=demande_id))
 
 
 # ── Ressources ─────────────────────────────────────────────
