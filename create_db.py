@@ -67,6 +67,5 @@ def init_db():
             FOREIGN KEY (auteur_id) REFERENCES utilisateur(id)
         )
     """)
-
 if __name__ == '__main__':
     init_db()
