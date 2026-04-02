@@ -21,6 +21,7 @@ from data_model import (
     get_stats_utilisateur,
     obtenir_demandes_de,
     get_reponses_de,
+    valider_mot_de_passe,
 )
 from create_db import init_db
 
@@ -52,12 +53,22 @@ def inscription():
     nom         = request.form['nom_utilisateur']
     mdp         = request.form['mot_de_passe']
     est_parrain = 1 if request.form.get('est_parrain') == '1' else 0
+
+    # --- 1. On vérifie la solidité du mot de passe ---
+    est_valide, message_erreur = valider_mot_de_passe(mdp)
+    
+    if not est_valide:
+        # Si c'est invalide, on recharge la page avec le message d'erreur approprié
+        return render_template('connexion.html', erreur=message_erreur, active_tab='inscription')   
+    # --- 2. Si le mot de passe est bon, on continue l'inscription ---
     user_id = inscrire_utilisateur(nom, mdp, est_parrain)
+    
     if user_id == -1:
-        return render_template('connexion.html', erreur="Ce nom d'utilisateur est déjà pris.")
+        return render_template('connexion.html', erreur="Ce nom d'utilisateur est déjà pris.", active_tab='inscription')        
     session['user_id']     = user_id
     session['est_parrain'] = est_parrain == 1
     session['nom']         = nom
+    
     return redirect(url_for('accueil'))
 
 @app.route('/deconnexion')

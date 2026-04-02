@@ -290,3 +290,15 @@ def get_parrain_disponible(filleul_id):
         LIMIT 1
     """
     return db_fetch(query, (filleul_id,))
+
+def valider_mot_de_passe(mdp):
+    #Vérifie les 4 critères de sécurité du mot de passe.
+    if len(mdp) < 8:
+        return False, "Le mot de passe doit contenir au moins 8 caractères."
+    if not any(c.isupper() for c in mdp):
+        return False, "Le mot de passe doit contenir au moins une lettre majuscule."
+    if not any(c.isdigit() for c in mdp):
+        return False, "Le mot de passe doit contenir au moins un chiffre."
+    if not any(not c.isalnum() for c in mdp):
+        return False, "Le mot de passe doit contenir au moins un caractère spécial."
+    return True, "Mot de passe valide."
