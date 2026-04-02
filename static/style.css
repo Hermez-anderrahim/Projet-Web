@@ -533,6 +533,7 @@ footer {
   background: var(--blanc);
   font-family: 'DM Mono', monospace;
   letter-spacing: 0.02em;
+  margin-top: auto; 
 }
 
 /* ── Animation ───────────────────────────────────────────── */
