@@ -22,6 +22,10 @@ from data_model import (
     obtenir_demandes_de,
     get_reponses_de,
     valider_mot_de_passe,
+     creer_demande_parrainage,
+    obtenir_demandes_parrainage_recues,
+    obtenir_parrains_disponibles,
+    repondre_demande_parrainage,
 )
 from create_db import init_db
 
@@ -154,18 +158,32 @@ def ajouter_ressource_post():
 @login_required
 def mon_parrainage():
     if session['est_parrain']:
-        filleuls = obtenir_filleuls_de(session['user_id'])
-        return render_template('parrainage.html', filleuls=filleuls, est_parrain=True)
+        filleuls  = obtenir_filleuls_de(session['user_id'])
+        demandes  = obtenir_demandes_parrainage_recues(session['user_id'])
+        return render_template('parrainage.html',
+                               filleuls=filleuls,
+                               demandes_recues=demandes,
+                               est_parrain=True)
     else:
-        parrain = obtenir_parrain_de(session['user_id'])
-        return render_template('parrainage.html', parrain=parrain, est_parrain=False)
+        parrain  = obtenir_parrain_de(session['user_id'])
+        parrains = obtenir_parrains_disponibles(session['user_id']) if not parrain else []        
+        return render_template('parrainage.html',
+                               parrain=parrain,
+                               parrains=parrains,
+                               est_parrain=False)
 
-@app.route('/demander-parrain', methods=['POST'])
+@app.route('/demander-parrain/<int:parrain_id>', methods=['POST'])
 @login_required
-def demander_parrain():
-    parrain = get_parrain_disponible(session['user_id'])
-    if parrain:
-        creer_parrainage(parrain['id'], session['user_id'])
+def demander_parrain_specifique(parrain_id):
+    message = request.form.get('message', '')
+    creer_demande_parrainage(session['user_id'], parrain_id, message)
+    return redirect(url_for('mon_parrainage'))
+
+@app.route('/parrainage/repondre/<int:demande_id>', methods=['POST'])
+@login_required
+def repondre_parrainage(demande_id):
+    accepter = request.form.get('action') == 'accepter'
+    repondre_demande_parrainage(demande_id, session['user_id'], accepter)
     return redirect(url_for('mon_parrainage'))
 
 

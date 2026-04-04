@@ -5,6 +5,7 @@
 
   {% if est_parrain %}
 
+  <!-- En-tête parrain -->
   <div class="carte-parrain" style="margin-bottom: 20px;">
     <div class="avatar lg">{{ session.get('nom', '?')[0]|upper }}</div>
     <div>
@@ -13,8 +14,39 @@
     </div>
   </div>
 
-  <div class="divider">Mes filleuls ({{ filleuls|length }})</div>
+  <!-- Demandes en attente -->
+  {% if demandes_recues %}
+  <div class="divider">Demandes en attente ({{ demandes_recues|length }})</div>
+  {% for d in demandes_recues %}
+  <div class="carte-demande">
+    <div class="carte-entete">
+      <div class="avatar sm">{{ d.nom_utilisateur[0]|upper }}</div>
+      <a href="/utilisateur/{{ d.filleul_id }}" style="font-size: 14px; font-weight: 500;">
+        {{ d.nom_utilisateur }}
+      </a>
+      <span class="auteur">{{ d.created_at[:10] }}</span>
+    </div>
+    {% if d.message %}
+    <p>{{ d.message }}</p>
+    {% endif %}
+    <div style="display: flex; gap: 10px;">
+      <form action="/parrainage/repondre/{{ d.id }}" method="POST" style="display:inline;">
+        <input type="hidden" name="action" value="accepter">
+        <button type="submit" class="btn btn-primary" style="padding: 7px 16px; font-size: 13px;">
+          Accepter
+        </button>
+      </form>
+      <form action="/parrainage/repondre/{{ d.id }}" method="POST" style="display:inline;">
+        <input type="hidden" name="action" value="refuser">
+        <button type="submit" class="btn btn-danger">Refuser</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
 
+  <!-- Mes filleuls -->
+  <div class="divider">Mes filleuls ({{ filleuls|length }})</div>
   {% for filleul in filleuls %}
   <div class="carte-parrain" style="margin-bottom: 10px;">
     <div class="avatar sm">{{ filleul.nom_utilisateur[0]|upper }}</div>
@@ -30,6 +62,7 @@
 
   {% else %}
 
+  <!-- Vue filleul -->
   {% if parrain %}
   <div class="carte-parrain">
     <div class="avatar lg">{{ parrain.nom_utilisateur[0]|upper }}</div>
@@ -39,21 +72,46 @@
         <a href="/utilisateur/{{ parrain.id }}">{{ parrain.nom_utilisateur }}</a>
       </h2>
       <p style="font-size: 13px; color: var(--gris-texte);">
-        N'hésitez pas à le contacter pour toute question académique !
+        N'hesitez pas a le contacter pour toute question academique !
       </p>
     </div>
   </div>
 
   {% else %}
-  <p style="font-size: 14px; color: var(--gris-texte); margin-bottom: 20px;">
-    Vous n'avez pas encore de parrain.
+
+  <p style="font-size: 14px; color: var(--gris-texte); margin-bottom: 24px;">
+    Vous n'avez pas encore de parrain. Choisissez-en un dans la liste ci-dessous.
   </p>
-  <form action="/demander-parrain" method="POST">
-    <button type="submit">Trouver un parrain</button>
-  </form>
+
+  <div class="divider">Parrains disponibles ({{ parrains|length }})</div>
+
+  {% for p in parrains %}
+  <div class="carte-parrain" style="margin-bottom: 10px;">
+    <div class="avatar">{{ p.nom_utilisateur[0]|upper }}</div>
+    <div style="flex: 1;">
+      <a href="/utilisateur/{{ p.id }}" style="font-size: 14px; font-weight: 500;">
+        {{ p.nom_utilisateur }}
+      </a>
+      <p style="font-size: 12px; color: var(--gris-doux); margin-top: 2px;">
+        {{ p.nb_filleuls }} filleul{% if p.nb_filleuls != 1 %}s{% endif %}
+      </p>
+    </div>
+    <form action="/demander-parrain/{{ p.id }}" method="POST"
+          style="display:flex; gap:8px; align-items:center;">
+      <input type="text" name="message"
+             placeholder="Message (optionnel)"
+             style="width: 200px; padding: 7px 12px; font-size: 13px;">
+      <button type="submit" class="btn btn-primary"
+              style="padding: 7px 16px; font-size: 13px; white-space: nowrap;">
+        Demander
+      </button>
+    </form>
+  </div>
+  {% else %}
+  <p class="vide">Aucun parrain disponible pour l'instant.</p>
+  {% endfor %}
 
   {% endif %}
-
   {% endif %}
 </main>
 

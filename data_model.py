@@ -302,3 +302,63 @@ def valider_mot_de_passe(mdp):
     if not any(not c.isalnum() for c in mdp):
         return False, "Le mot de passe doit contenir au moins un caractère spécial."
     return True, "Mot de passe valide."
+
+def creer_demande_parrainage(filleul_id, parrain_id, message=""):
+    #L'étudiant L1 envoie une demande à un parrain.
+    db_insert(
+        "INSERT INTO demande_parrainage (filleul_id, parrain_id, message, statut) VALUES (?, ?, ?, 'en_attente')",
+        (filleul_id, parrain_id, message)
+    )
+
+def obtenir_demandes_parrainage_recues(parrain_id):
+    #Retourne les demandes en attente reçues par un parrain.
+    return db_fetch(
+        """SELECT dp.id, dp.message, dp.statut, dp.created_at,
+                  u.id as filleul_id, u.nom_utilisateur
+           FROM demande_parrainage dp
+           JOIN utilisateur u ON u.id = dp.filleul_id
+           WHERE dp.parrain_id = ? AND dp.statut = 'en_attente'
+           ORDER BY dp.created_at DESC""",
+        (parrain_id,),
+        fetch_all=True
+    )
+
+def obtenir_parrains_disponibles(filleul_id):
+    #Retourne les parrains disponibles
+    return db_fetch(
+        """SELECT u.id, u.nom_utilisateur,
+                  COUNT(p.filleul_id) as nb_filleuls
+           FROM utilisateur u
+           LEFT JOIN parrainage p ON p.parrain_id = u.id
+           WHERE u.est_parrain = 1
+             AND u.id NOT IN (
+                 SELECT parrain_id FROM parrainage WHERE filleul_id = ?
+             )
+             AND u.id NOT IN (
+                 SELECT parrain_id FROM demande_parrainage
+                 WHERE filleul_id = ? AND statut = 'en_attente'
+             )
+           GROUP BY u.id
+           ORDER BY nb_filleuls ASC""",
+        (filleul_id, filleul_id),
+        fetch_all=True
+    )
+
+def repondre_demande_parrainage(demande_id, parrain_id, accepter):
+    #Le parrain accepte ou refuse une demande.
+    if accepter:
+        demande = db_fetch(
+            "SELECT filleul_id FROM demande_parrainage WHERE id = ? AND parrain_id = ?",
+            (demande_id, parrain_id)
+        )
+        if demande:
+            creer_parrainage(parrain_id, demande['filleul_id'])
+            db_run(
+                "UPDATE demande_parrainage SET statut = 'acceptee' WHERE id = ?",
+                (demande_id,)
+            )
+    else:
+        db_run(
+            "UPDATE demande_parrainage SET statut = 'refusee' WHERE id = ?",
+            (demande_id,)
+        )
