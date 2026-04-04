@@ -92,7 +92,7 @@ def obtenir_demandes():
 
 
 def obtenir_matieres():
-    """Retourne la liste des matières distinctes présentes dans les demandes et les ressources."""
+    #Retourne la liste des matières distinctes présentes dans les demandes et les ressources.
     query = """
         SELECT DISTINCT matiere FROM demande_aide
         UNION
@@ -104,7 +104,7 @@ def obtenir_matieres():
 
 
 def chercher_demandes(q='', matiere=''):
-    """Retourne les demandes filtrées par matière et/ou recherche textuelle."""
+    #Retourne les demandes filtrées par matière et/ou recherche textuelle.
     conditions, args = [], []
 
     if matiere:
@@ -207,7 +207,7 @@ def obtenir_ressources():
 
 
 def get_ressource_piece_jointe(ressource_id):
-    """Données binaires + nom pour téléchargement (BLOB en base)."""
+    # Données binaires + nom pour téléchargement (BLOB en base).
     return db_fetch(
         """
         SELECT fichier_donnees, fichier_nom_original
@@ -219,15 +219,8 @@ def get_ressource_piece_jointe(ressource_id):
     )
 
 
-def ajouter_ressource(
-    auteur_id,
-    matiere,
-    titre,
-    lien_url,
-    fichier_bytes=None,
-    fichier_nom_original=None,
-):
-    #Ajoute une ressource ; fichier optionnel stocké en BLOB (plus de dossier uploads).
+def ajouter_ressource(auteur_id, matiere, titre, lien_url, fichier_bytes=None, fichier_nom_original=None,):
+    #Ajoute une ressource fichier optionnel stocké en BLOB.
     lien = (lien_url or "").strip()
     query = """
         INSERT INTO ressource (
@@ -270,70 +263,6 @@ def obtenir_filleuls_de(parrain_id):
         WHERE parrainage.parrain_id = ?
     """
     return db_fetch(query, (parrain_id,), fetch_all=True)
-
-
-# ── Profil utilisateur ───────────────────────────────────
-
-def get_utilisateur(user_id):
-    #Retourne les informations publiques d'un utilisateur.
-    query = "SELECT id, nom_utilisateur, est_parrain FROM utilisateur WHERE id = ?"
-    return db_fetch(query, (user_id,))
-
-
-def get_stats_utilisateur(user_id):
-    #Retourne les compteurs d'activité d'un utilisateur.
-    demandes   = db_fetch("SELECT COUNT(*) AS c FROM demande_aide WHERE auteur_id = ?", (user_id,))
-    reponses   = db_fetch("SELECT COUNT(*) AS c FROM reponse      WHERE auteur_id = ?", (user_id,))
-    ressources = db_fetch("SELECT COUNT(*) AS c FROM ressource     WHERE auteur_id = ?", (user_id,))
-    return {
-        'demandes':   demandes['c']   if demandes   else 0,
-        'reponses':   reponses['c']   if reponses   else 0,
-        'ressources': ressources['c'] if ressources else 0,
-    }
-
-
-def obtenir_demandes_de(user_id):
-    #Retourne les demandes d'aide créées par un utilisateur.
-    query = """
-        SELECT id, matiere, description, statut
-        FROM demande_aide
-        WHERE auteur_id = ?
-        ORDER BY id DESC
-    """
-    return db_fetch(query, (user_id,), fetch_all=True)
-
-
-def get_parrain_disponible(filleul_id):
-    """
-    Retourne le parrain disponible ayant le moins de filleuls,
-    en excluant ceux qui parrainent déjà cet utilisateur.
-    """
-    query = """
-        SELECT utilisateur.id, utilisateur.nom_utilisateur,
-               COUNT(parrainage.filleul_id) AS nb_filleuls
-        FROM utilisateur
-        LEFT JOIN parrainage ON utilisateur.id = parrainage.parrain_id
-        WHERE utilisateur.est_parrain = 1
-          AND utilisateur.id NOT IN (
-              SELECT parrain_id FROM parrainage WHERE filleul_id = ?
-          )
-        GROUP BY utilisateur.id
-        ORDER BY nb_filleuls ASC
-        LIMIT 1
-    """
-    return db_fetch(query, (filleul_id,))
-
-def valider_mot_de_passe(mdp):
-    #Vérifie les 4 critères de sécurité du mot de passe.
-    if len(mdp) < 8:
-        return False, "Le mot de passe doit contenir au moins 8 caractères."
-    if not any(c.isupper() for c in mdp):
-        return False, "Le mot de passe doit contenir au moins une lettre majuscule."
-    if not any(c.isdigit() for c in mdp):
-        return False, "Le mot de passe doit contenir au moins un chiffre."
-    if not any(not c.isalnum() for c in mdp):
-        return False, "Le mot de passe doit contenir au moins un caractère spécial."
-    return True, "Mot de passe valide."
 
 def creer_demande_parrainage(filleul_id, parrain_id, message=""):
     #L'étudiant L1 envoie une demande à un parrain.
@@ -394,3 +323,47 @@ def repondre_demande_parrainage(demande_id, parrain_id, accepter):
             "UPDATE demande_parrainage SET statut = 'refusee' WHERE id = ?",
             (demande_id,)
         )
+
+# ── Profil utilisateur ───────────────────────────────────
+
+def get_utilisateur(user_id):
+    #Retourne les informations publiques d'un utilisateur.
+    query = "SELECT id, nom_utilisateur, est_parrain FROM utilisateur WHERE id = ?"
+    return db_fetch(query, (user_id,))
+
+
+def get_stats_utilisateur(user_id):
+    #Retourne les compteurs d'activité d'un utilisateur.
+    demandes   = db_fetch("SELECT COUNT(*) AS c FROM demande_aide WHERE auteur_id = ?", (user_id,))
+    reponses   = db_fetch("SELECT COUNT(*) AS c FROM reponse      WHERE auteur_id = ?", (user_id,))
+    ressources = db_fetch("SELECT COUNT(*) AS c FROM ressource     WHERE auteur_id = ?", (user_id,))
+    return {
+        'demandes':   demandes['c']   if demandes   else 0,
+        'reponses':   reponses['c']   if reponses   else 0,
+        'ressources': ressources['c'] if ressources else 0,
+    }
+
+
+def obtenir_demandes_de(user_id):
+    #Retourne les demandes d'aide créées par un utilisateur.
+    query = """
+        SELECT id, matiere, description, statut
+        FROM demande_aide
+        WHERE auteur_id = ?
+        ORDER BY id DESC
+    """
+    return db_fetch(query, (user_id,), fetch_all=True)
+
+
+def valider_mot_de_passe(mdp):
+    #Vérifie les 4 critères de sécurité du mot de passe.
+    if len(mdp) < 8:
+        return False, "Le mot de passe doit contenir au moins 8 caractères."
+    if not any(c.isupper() for c in mdp):
+        return False, "Le mot de passe doit contenir au moins une lettre majuscule."
+    if not any(c.isdigit() for c in mdp):
+        return False, "Le mot de passe doit contenir au moins un chiffre."
+    if not any(not c.isalnum() for c in mdp):
+        return False, "Le mot de passe doit contenir au moins un caractère spécial."
+    return True, "Mot de passe valide."
+
