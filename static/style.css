@@ -391,6 +391,21 @@ button:active, .btn:active { transform: scale(0.98); }
 .carte-ressource .titre { font-size: 14px; font-weight: 500; color: var(--noir); }
 .carte-ressource .meta  { font-size: 12px; color: var(--gris-doux); margin-top: 3px; }
 
+.carte-ressource-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--gris-doux);
+  margin: -6px 0 4px;
+}
+
 /* ── Parrainage ──────────────────────────────────────────── */
 .carte-parrain {
   background: var(--blanc);

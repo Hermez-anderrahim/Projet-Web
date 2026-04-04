@@ -15,7 +15,14 @@
         &nbsp;· partagé par <a href="/utilisateur/{{ r.auteur_id }}">{{ r.auteur }}</a>
       </div>
     </div>
-    <a href="{{ r.lien_url }}" target="_blank" class="btn btn-outline">Consulter</a>
+    <div class="carte-ressource-actions">
+      {% if r.lien_url %}
+      <a href="{{ r.lien_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Consulter le lien</a>
+      {% endif %}
+      {% if r.fichier_stocke %}
+      <a href="{{ url_for('telecharger_ressource', ressource_id=r.id) }}" class="btn btn-primary">Télécharger le fichier</a>
+      {% endif %}
+    </div>
   </div>
 
   {% else %}

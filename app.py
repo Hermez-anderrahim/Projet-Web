@@ -1,4 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+import os
+import uuid
+
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, abort
+from werkzeug.utils import secure_filename
+
 from data_model import (
     login_required,
     inscrire_utilisateur,
@@ -22,11 +27,27 @@ from data_model import (
     obtenir_demandes_de,
     get_reponses_de,
     valider_mot_de_passe,
+    get_ressource,
 )
 from create_db import init_db
 
 app = Flask(__name__)
 app.secret_key = 'luminy-secret-key'
+
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads", "ressources")
+ALLOWED_EXTENSIONS_RESSOURCE = frozenset(
+    {"pdf", "png", "jpg", "jpeg", "gif", "webp", "txt", "doc", "docx", "zip", "odt", "ppt", "pptx"}
+)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+init_db()
+
+
+def _extension_fichier_autorisee(filename):
+    if not filename or "." not in filename:
+        return False
+    return filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS_RESSOURCE
 
 
 # ── Auth ───────────────────────────────────────────────────
@@ -140,13 +161,65 @@ def ajouter_ressource_get():
 @app.route('/ajouter-ressource', methods=['POST'])
 @login_required
 def ajouter_ressource_post():
+    matiere = request.form.get("matiere", "").strip()
+    titre = request.form.get("titre", "").strip()
+    lien_url = (request.form.get("lien_url") or "").strip()
+    fichier = request.files.get("fichier")
+
+    fichier_stocke = None
+    fichier_nom_original = None
+    if fichier and fichier.filename:
+        if not _extension_fichier_autorisee(fichier.filename):
+            return render_template(
+                "ajouter_ressource.html",
+                erreur="Type de fichier non autorisé. Extensions acceptées : "
+                + ", ".join(sorted(ALLOWED_EXTENSIONS_RESSOURCE)),
+            )
+        nom_safe = secure_filename(fichier.filename)
+        if not nom_safe:
+            return render_template(
+                "ajouter_ressource.html",
+                erreur="Nom de fichier invalide.",
+            )
+        ext = ""
+        if "." in nom_safe:
+            ext = "." + nom_safe.rsplit(".", 1)[1].lower()
+        stocke = f"{uuid.uuid4().hex}{ext}"
+        chemin = os.path.join(app.config["UPLOAD_FOLDER"], stocke)
+        fichier.save(chemin)
+        fichier_stocke = stocke
+        fichier_nom_original = nom_safe
+
+    if not lien_url and not fichier_stocke:
+        return render_template(
+            "ajouter_ressource.html",
+            erreur="Indiquez au moins un lien URL ou un fichier à joindre.",
+        )
+
     ajouter_ressource(
-        session['user_id'],
-        request.form['matiere'],
-        request.form['titre'],
-        request.form['lien_url']
+        session["user_id"],
+        matiere,
+        titre,
+        lien_url,
+        fichier_stocke=fichier_stocke,
+        fichier_nom_original=fichier_nom_original,
     )
-    return redirect(url_for('ressources'))
+    return redirect(url_for("ressources"))
+
+
+@app.route("/ressources/fichier/<int:ressource_id>")
+@login_required
+def telecharger_ressource(ressource_id):
+    r = get_ressource(ressource_id)
+    if not r or not r.get("fichier_stocke"):
+        abort(404)
+    chemin = os.path.join(app.config["UPLOAD_FOLDER"], r["fichier_stocke"])
+    chemin = os.path.normpath(chemin)
+    base = os.path.normpath(app.config["UPLOAD_FOLDER"])
+    if not chemin.startswith(base) or not os.path.isfile(chemin):
+        abort(404)
+    nom = r.get("fichier_nom_original") or "document"
+    return send_file(chemin, as_attachment=True, download_name=nom)
 
 
 # ── Parrainage ─────────────────────────────────────────────
@@ -193,5 +266,4 @@ def profil_public(user_id):
 
 # ── Lancement ──────────────────────────────────────────────
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)

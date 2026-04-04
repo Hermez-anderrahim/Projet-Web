@@ -196,6 +196,7 @@ def obtenir_ressources():
     #Retourne toutes les ressources avec le nom et l'id de leur auteur.
     query = """
         SELECT ressource.id, ressource.matiere, ressource.titre, ressource.lien_url,
+               ressource.fichier_stocke, ressource.fichier_nom_original,
                ressource.auteur_id, utilisateur.nom_utilisateur AS auteur
         FROM ressource
         JOIN utilisateur ON ressource.auteur_id = utilisateur.id
@@ -204,10 +205,27 @@ def obtenir_ressources():
     return db_fetch(query, fetch_all=True)
 
 
-def ajouter_ressource(auteur_id, matiere, titre, lien_url):
-    #Ajoute une nouvelle ressource partagée.
-    query = "INSERT INTO ressource (auteur_id, matiere, titre, lien_url) VALUES (?, ?, ?, ?)"
-    return db_insert(query, (auteur_id, matiere, titre, lien_url))
+def get_ressource(ressource_id):
+    """Retourne une ressource par id (champs fichier inclus)."""
+    query = """
+        SELECT ressource.id, ressource.matiere, ressource.titre, ressource.lien_url,
+               ressource.fichier_stocke, ressource.fichier_nom_original,
+               ressource.auteur_id, utilisateur.nom_utilisateur AS auteur
+        FROM ressource
+        JOIN utilisateur ON ressource.auteur_id = utilisateur.id
+        WHERE ressource.id = ?
+    """
+    return db_fetch(query, (ressource_id,), fetch_all=False)
+
+
+def ajouter_ressource(auteur_id, matiere, titre, lien_url, fichier_stocke=None, fichier_nom_original=None):
+    #Ajoute une nouvelle ressource partagée (lien et/ou fichier).
+    lien = (lien_url or "").strip()
+    query = """
+        INSERT INTO ressource (auteur_id, matiere, titre, lien_url, fichier_stocke, fichier_nom_original)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """
+    return db_insert(query, (auteur_id, matiere, titre, lien, fichier_stocke, fichier_nom_original))
 
 
 # ── Parrainage ────────────────────────────────────────────

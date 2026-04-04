@@ -63,7 +63,9 @@ def init_db():
             auteur_id INTEGER NOT NULL,
             matiere TEXT NOT NULL,
             titre TEXT NOT NULL,
-            lien_url TEXT NOT NULL,
+            lien_url TEXT NOT NULL DEFAULT '',
+            fichier_stocke TEXT,
+            fichier_nom_original TEXT,
             FOREIGN KEY (auteur_id) REFERENCES utilisateur(id)
         )
     """)

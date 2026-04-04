@@ -4,7 +4,11 @@
   <a href="/ressources" class="lien-retour">← Retour aux ressources</a>
   <h1>Partager un document</h1>
 
-  <form action="/ajouter-ressource" method="POST">
+  {% if erreur %}
+  <p class="erreur" role="alert">{{ erreur }}</p>
+  {% endif %}
+
+  <form action="/ajouter-ressource" method="POST" enctype="multipart/form-data">
     <label>
       Matière
       <input type="text" name="matiere" placeholder="ex : Web, Maths, Algorithmique…" required>
@@ -14,9 +18,14 @@
       <input type="text" name="titre" placeholder="ex : Fiche révision CSS" required>
     </label>
     <label>
-      Lien URL
-      <input type="url" name="lien_url" placeholder="https://drive.google.com/…" required>
+      Lien URL (optionnel si vous joignez un fichier)
+      <input type="url" name="lien_url" placeholder="https://drive.google.com/…">
     </label>
+    <label>
+      Fichier (optionnel si vous indiquez un lien)
+      <input type="file" name="fichier" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.doc,.docx,.zip,.odt,.ppt,.pptx">
+    </label>
+    <p class="form-hint">Au moins un lien ou un fichier est requis. PDF, images, texte, Office, ZIP…</p>
     <button type="submit">Ajouter à la bibliothèque</button>
   </form>
 </main>
