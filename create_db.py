@@ -69,5 +69,17 @@ def init_db():
             FOREIGN KEY (auteur_id) REFERENCES utilisateur(id)
         )
     """)
+
+    # 6. Table demande parrainage
+    db_run("""
+    CREATE TABLE IF NOT EXISTS demande_parrainage (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        filleul_id INTEGER NOT NULL REFERENCES utilisateur(id),
+        parrain_id INTEGER NOT NULL REFERENCES utilisateur(id),
+        message    TEXT    DEFAULT '',
+        statut     TEXT    DEFAULT 'en_attente',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
 if __name__ == '__main__':
     init_db()
