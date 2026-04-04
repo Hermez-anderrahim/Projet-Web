@@ -194,9 +194,10 @@ def get_reponses_de(user_id):
 
 def obtenir_ressources():
     #Retourne toutes les ressources avec le nom et l'id de leur auteur.
+    # has_fichier : uniquement si un fichier est stocké en base (BLOB)
     query = """
         SELECT ressource.id, ressource.matiere, ressource.titre, ressource.lien_url,
-               ressource.fichier_stocke, ressource.fichier_nom_original,
+               (ressource.fichier_donnees IS NOT NULL) AS has_fichier,
                ressource.auteur_id, utilisateur.nom_utilisateur AS auteur
         FROM ressource
         JOIN utilisateur ON ressource.auteur_id = utilisateur.id
@@ -205,27 +206,40 @@ def obtenir_ressources():
     return db_fetch(query, fetch_all=True)
 
 
-def get_ressource(ressource_id):
-    """Retourne une ressource par id (champs fichier inclus)."""
-    query = """
-        SELECT ressource.id, ressource.matiere, ressource.titre, ressource.lien_url,
-               ressource.fichier_stocke, ressource.fichier_nom_original,
-               ressource.auteur_id, utilisateur.nom_utilisateur AS auteur
+def get_ressource_piece_jointe(ressource_id):
+    """Données binaires + nom pour téléchargement (BLOB en base)."""
+    return db_fetch(
+        """
+        SELECT fichier_donnees, fichier_nom_original
         FROM ressource
-        JOIN utilisateur ON ressource.auteur_id = utilisateur.id
-        WHERE ressource.id = ?
-    """
-    return db_fetch(query, (ressource_id,), fetch_all=False)
+        WHERE id = ? AND fichier_donnees IS NOT NULL
+        """,
+        (ressource_id,),
+        fetch_all=False,
+    )
 
 
-def ajouter_ressource(auteur_id, matiere, titre, lien_url, fichier_stocke=None, fichier_nom_original=None):
-    #Ajoute une nouvelle ressource partagée (lien et/ou fichier).
+def ajouter_ressource(
+    auteur_id,
+    matiere,
+    titre,
+    lien_url,
+    fichier_bytes=None,
+    fichier_nom_original=None,
+):
+    #Ajoute une ressource ; fichier optionnel stocké en BLOB (plus de dossier uploads).
     lien = (lien_url or "").strip()
     query = """
-        INSERT INTO ressource (auteur_id, matiere, titre, lien_url, fichier_stocke, fichier_nom_original)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO ressource (
+            auteur_id, matiere, titre, lien_url,
+            fichier_stocke, fichier_nom_original, fichier_donnees
+        )
+        VALUES (?, ?, ?, ?, NULL, ?, ?)
     """
-    return db_insert(query, (auteur_id, matiere, titre, lien, fichier_stocke, fichier_nom_original))
+    return db_insert(
+        query,
+        (auteur_id, matiere, titre, lien, fichier_nom_original, fichier_bytes),
+    )
 
 
 # ── Parrainage ────────────────────────────────────────────

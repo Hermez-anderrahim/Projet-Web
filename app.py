@@ -1,5 +1,4 @@
-import os
-import uuid
+import io
 
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, abort
 from werkzeug.utils import secure_filename
@@ -18,6 +17,7 @@ from data_model import (
     obtenir_filleuls_de,
     ajouter_ressource,
     obtenir_ressources,
+    get_ressource_piece_jointe,
     get_demande,
     get_reponses,
     creer_reponse,
@@ -37,12 +37,9 @@ from create_db import init_db
 app = Flask(__name__)
 app.secret_key = 'luminy-secret-key'
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads", "ressources")
 ALLOWED_EXTENSIONS_RESSOURCE = frozenset(
     {"pdf", "png", "jpg", "jpeg", "gif", "webp", "txt", "doc", "docx", "zip", "odt", "ppt", "pptx"}
 )
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 init_db()
 
@@ -169,7 +166,7 @@ def ajouter_ressource_post():
     lien_url = (request.form.get("lien_url") or "").strip()
     fichier = request.files.get("fichier")
 
-    fichier_stocke = None
+    fichier_bytes = None
     fichier_nom_original = None
     if fichier and fichier.filename:
         if not _extension_fichier_autorisee(fichier.filename):
@@ -184,16 +181,15 @@ def ajouter_ressource_post():
                 "ajouter_ressource.html",
                 erreur="Nom de fichier invalide.",
             )
-        ext = ""
-        if "." in nom_safe:
-            ext = "." + nom_safe.rsplit(".", 1)[1].lower()
-        stocke = f"{uuid.uuid4().hex}{ext}"
-        chemin = os.path.join(app.config["UPLOAD_FOLDER"], stocke)
-        fichier.save(chemin)
-        fichier_stocke = stocke
+        fichier_bytes = fichier.read()
+        if not fichier_bytes:
+            return render_template(
+                "ajouter_ressource.html",
+                erreur="Le fichier est vide.",
+            )
         fichier_nom_original = nom_safe
 
-    if not lien_url and not fichier_stocke:
+    if not lien_url and not fichier_bytes:
         return render_template(
             "ajouter_ressource.html",
             erreur="Indiquez au moins un lien URL ou un fichier à joindre.",
@@ -204,7 +200,7 @@ def ajouter_ressource_post():
         matiere,
         titre,
         lien_url,
-        fichier_stocke=fichier_stocke,
+        fichier_bytes=fichier_bytes,
         fichier_nom_original=fichier_nom_original,
     )
     return redirect(url_for("ressources"))
@@ -213,16 +209,13 @@ def ajouter_ressource_post():
 @app.route("/ressources/fichier/<int:ressource_id>")
 @login_required
 def telecharger_ressource(ressource_id):
-    r = get_ressource(ressource_id)
-    if not r or not r.get("fichier_stocke"):
-        abort(404)
-    chemin = os.path.join(app.config["UPLOAD_FOLDER"], r["fichier_stocke"])
-    chemin = os.path.normpath(chemin)
-    base = os.path.normpath(app.config["UPLOAD_FOLDER"])
-    if not chemin.startswith(base) or not os.path.isfile(chemin):
+    r = get_ressource_piece_jointe(ressource_id)
+    if not r or not r.get("fichier_donnees"):
         abort(404)
     nom = r.get("fichier_nom_original") or "document"
-    return send_file(chemin, as_attachment=True, download_name=nom)
+    buf = io.BytesIO(r["fichier_donnees"])
+    buf.seek(0)
+    return send_file(buf, as_attachment=True, download_name=nom)
 
 
 # ── Parrainage ─────────────────────────────────────────────

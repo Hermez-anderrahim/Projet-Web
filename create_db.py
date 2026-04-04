@@ -66,9 +66,17 @@ def init_db():
             lien_url TEXT NOT NULL DEFAULT '',
             fichier_stocke TEXT,
             fichier_nom_original TEXT,
+            fichier_donnees BLOB,
             FOREIGN KEY (auteur_id) REFERENCES utilisateur(id)
         )
     """)
+
+    # Migration : ajouter fichier_donnees aux bases créées avant cette colonne
+    with sqlite3.connect(DB_FILE) as conn:
+        cols = [row[1] for row in conn.execute("PRAGMA table_info(ressource)").fetchall()]
+        if cols and "fichier_donnees" not in cols:
+            conn.execute("ALTER TABLE ressource ADD COLUMN fichier_donnees BLOB")
+            conn.commit()
 
     # 6. Table demande parrainage
     db_run("""

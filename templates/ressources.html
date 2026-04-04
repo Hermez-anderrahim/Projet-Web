@@ -19,7 +19,7 @@
       {% if r.lien_url %}
       <a href="{{ r.lien_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Consulter le lien</a>
       {% endif %}
-      {% if r.fichier_stocke %}
+      {% if r.has_fichier %}
       <a href="{{ url_for('telecharger_ressource', ressource_id=r.id) }}" class="btn btn-primary">Télécharger le fichier</a>
       {% endif %}
     </div>
