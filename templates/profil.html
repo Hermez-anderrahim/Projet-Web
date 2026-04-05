@@ -1,7 +1,6 @@
 {% include 'en_tete.html' %}
 
 <main>
-  <!-- En-tête profil -->
   <div class="carte-profil">
     <div class="avatar lg">{{ user.nom_utilisateur[0]|upper }}</div>
     <div class="profil-info">
@@ -12,7 +11,6 @@
     </div>
   </div>
 
-  <!-- Statistiques -->
   <div class="stats-row">
     <div class="stat-box">
       <div class="val">{{ stats.demandes }}</div>
@@ -28,7 +26,37 @@
     </div>
   </div>
 
-  <!-- Mes demandes -->
+  <div class="divider">Coordonnées</div>
+  <div class="carte-demande" style="margin-bottom: 20px;">
+    {% if user.telephone or user.email %}
+      {% if user.telephone %}
+      <p><strong>Téléphone :</strong> {{ user.telephone }}</p>
+      {% endif %}
+      {% if user.email %}
+      <p style="margin-top: 6px;"><strong>Email :</strong> {{ user.email }}</p>
+      {% endif %}
+    {% else %}
+      <p class="vide">Aucune coordonnée renseignée.</p>
+    {% endif %}
+  </div>
+
+  <div class="divider">Modifier mes coordonnées</div>
+  <div class="carte-demande" style="margin-bottom: 24px;">
+    <form action="{{ url_for('modifier_profil') }}" method="POST">
+      <label for="telephone">Téléphone <span style="font-size:11px;color:var(--gris-bord);">— optionnel</span></label>
+      <input type="text" id="telephone" name="telephone"
+             value="{{ user.telephone or '' }}"
+             placeholder="06 12 34 56 78">
+
+      <label for="email" style="margin-top: 8px;">Email <span style="font-size:11px;color:var(--gris-bord);">— optionnel</span></label>
+      <input type="text" id="email" name="email"
+             value="{{ user.email or '' }}"
+             placeholder="prenom.nom@etu.univ-amu.fr">
+
+      <button type="submit" style="margin-top: 4px;">Enregistrer</button>
+    </form>
+  </div>
+
   <div class="divider">Mes demandes ({{ demandes|length }})</div>
 
   {% for d in demandes %}

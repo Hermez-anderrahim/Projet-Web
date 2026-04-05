@@ -1,9 +1,6 @@
 {% include 'en_tete.html' %}
 
 <main>
-  <a href="javascript:history.back()" class="lien-retour">← Retour</a>
-
-  <!-- En-tête profil -->
   <div class="carte-profil">
     <div class="avatar lg">{{ user.nom_utilisateur[0]|upper }}</div>
     <div class="profil-info">
@@ -17,7 +14,6 @@
     </span>
   </div>
 
-  <!-- Statistiques -->
   <div class="stats-row">
     <div class="stat-box">
       <div class="val">{{ stats.demandes }}</div>
@@ -33,9 +29,22 @@
     </div>
   </div>
 
-  <!-- Toutes les réponses -->
+  <div class="divider">Coordonnées</div>
+  <div class="carte-demande" style="margin-bottom: 20px;">
+    {% if user.telephone or user.email %}
+      {% if user.telephone %}
+      <p><strong>Téléphone :</strong> {{ user.telephone }}</p>
+      {% endif %}
+      {% if user.email %}
+      <p style="margin-top: 6px;"><strong>Email :</strong> {{ user.email }}</p>
+      {% endif %}
+    {% else %}
+      <p class="vide">Aucune coordonnée renseignée.</p>
+    {% endif %}
+  </div>
+
   <div class="divider">
-    Réponses de {{ user.nom_utilisateur }} ({{ reponses|length }})
+    Leur réponses ({{ reponses|length }})
   </div>
 
   {% for r in reponses %}
@@ -48,9 +57,8 @@
     </small>
   </div>
   {% else %}
-  <p class="vide">Cet étudiant n'a pas encore répondu à des questions.</p>
+  <p class="vide">Cet utilisateur n'a pas encore répondu à des questions.</p>
   {% endfor %}
-
 </main>
 
 {% include 'pied_de_page.html' %}

@@ -44,22 +44,16 @@ def db_update(query, args=(), db_name=DBFILENAME):
         conn.commit()
         return cur.rowcount
     
-def inscrire_utilisateur(nom_utilisateur, mot_de_passe, est_parrain):
-    #Inscrit un nouvel utilisateur en sécurisant son mot de passe.
+def inscrire_utilisateur(nom_utilisateur, mot_de_passe, est_parrain, telephone=None, email=None):
     
-    # On transforme le mot de passe
     mot_de_passe_hache = generate_password_hash(mot_de_passe)
-    
-    # on va insérer le mot de passe haché
-    query = "INSERT INTO utilisateur (nom_utilisateur, mot_de_passe, est_parrain) VALUES (?, ?, ?)"
-    
+    query = """
+        INSERT INTO utilisateur (nom_utilisateur, mot_de_passe, est_parrain, telephone, email)
+        VALUES (?, ?, ?, ?, ?)
+    """
     try:
-        # On tente l'insertion
-        nouvel_id = db_insert(query, (nom_utilisateur, mot_de_passe_hache, est_parrain))
-        return nouvel_id
-        
+        return db_insert(query, (nom_utilisateur, mot_de_passe_hache, est_parrain, telephone, email))
     except sqlite3.IntegrityError:
-        # le nom_utilisateur existe déjà
         return -1
 
 
@@ -328,8 +322,15 @@ def repondre_demande_parrainage(demande_id, parrain_id, accepter):
 
 def get_utilisateur(user_id):
     #Retourne les informations publiques d'un utilisateur.
-    query = "SELECT id, nom_utilisateur, est_parrain FROM utilisateur WHERE id = ?"
+    query = "SELECT id, nom_utilisateur, est_parrain, telephone, email FROM utilisateur WHERE id = ?"
     return db_fetch(query, (user_id,))
+
+def modifier_contact(user_id, telephone, email):
+    #modifier le num de tel ou/et email d'un utilisateur. 
+    return db_update(
+        "UPDATE utilisateur SET telephone = ?, email = ? WHERE id = ?",
+        (telephone or None, email or None, user_id)
+    )
 
 
 def get_stats_utilisateur(user_id):

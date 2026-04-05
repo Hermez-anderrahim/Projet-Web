@@ -17,7 +17,9 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nom_utilisateur TEXT UNIQUE NOT NULL,
             mot_de_passe TEXT NOT NULL,
-            est_parrain INTEGER NOT NULL
+            est_parrain INTEGER NOT NULL,
+            telephone TEXT DEFAULT NULL,
+            email TEXT DEFAULT NULL
         )
     """)
 

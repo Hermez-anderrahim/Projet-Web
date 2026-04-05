@@ -10,11 +10,13 @@
     {% endif %}
 
     <div class="tabs">
-      <button class="tab-btn {% if active_tab != 'inscription' %}active{% endif %}" 
+      <button type="button"
+              class="tab-btn {% if active_tab != 'inscription' %}active{% endif %}"
               onclick="switchTab('connexion', this)">
         Se connecter
       </button>
-      <button class="tab-btn {% if active_tab == 'inscription' %}active{% endif %}" 
+      <button type="button"
+              class="tab-btn {% if active_tab == 'inscription' %}active{% endif %}"
               onclick="switchTab('inscription', this)">
         Créer un compte
       </button>
@@ -24,10 +26,10 @@
       <form action="{{ url_for('connexion_post') }}" method="POST">
         <label for="c-nom">Nom d'utilisateur</label>
         <input type="text" id="c-nom" name="nom_utilisateur" required>
-        
+
         <label for="c-mdp">Mot de passe</label>
         <input type="password" id="c-mdp" name="mot_de_passe" required>
-        
+
         <button type="submit">Connexion</button>
       </form>
     </div>
@@ -35,18 +37,34 @@
     <div id="tab-inscription" class="tab-panel {% if active_tab == 'inscription' %}active{% endif %}">
       <form action="{{ url_for('inscription') }}" method="POST">
         <label for="i-nom">Nom d'utilisateur</label>
-        <input type="text" id="i-nom" name="nom_utilisateur" 
+        <input type="text" id="i-nom" name="nom_utilisateur"
                value="{{ request.form.get('nom_utilisateur', '') }}" required>
-        
+
         <label for="i-mdp">Mot de passe</label>
         <input type="password" id="i-mdp" name="mot_de_passe" required>
-        
+
+        <label for="i-tel">
+          Téléphone
+          <span style="font-size:11px; color:var(--gris-bord);">— optionnel</span>
+        </label>
+        <input type="text" id="i-tel" name="telephone"
+               value="{{ request.form.get('telephone', '') }}"
+               placeholder="06 12 34 56 78">
+
+        <label for="i-email">
+          Email
+          <span style="font-size:11px; color:var(--gris-bord);">— optionnel</span>
+        </label>
+        <input type="text" id="i-email" name="email"
+               value="{{ request.form.get('email', '') }}"
+               placeholder="prenom.nom@etu.univ-amu.fr">
+
         <label style="flex-direction: row; align-items: center; gap: 8px;">
-          <input type="checkbox" name="est_parrain" value="1" 
+          <input type="checkbox" name="est_parrain" value="1"
                  {% if request.form.get('est_parrain') %}checked{% endif %}>
           Je suis un étudiant expérimenté (L2/L3)
         </label>
-        
+
         <button type="submit">S'inscrire</button>
       </form>
     </div>
@@ -54,15 +72,9 @@
 </main>
 
 <script>
-/**
- * Gère le basculement visuel entre les onglets
- */
 function switchTab(name, btn) {
-  // Masque tous les panels et retire la classe active des boutons
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  
-  // Affiche le panel sélectionné et active son bouton
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
 }
