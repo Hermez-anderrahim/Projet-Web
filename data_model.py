@@ -194,7 +194,7 @@ def get_reponses_de(user_id):
 
 def obtenir_ressources():
     #Retourne toutes les ressources avec le nom et l'id de leur auteur.
-    # has_fichier : uniquement si un fichier est stocké en base (BLOB)
+    # has_fichier : uniquement si un fichier est stocké en base
     query = """
         SELECT ressource.id, ressource.matiere, ressource.titre, ressource.lien_url,
                (ressource.fichier_donnees IS NOT NULL) AS has_fichier,
